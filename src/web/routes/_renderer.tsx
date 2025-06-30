@@ -1,0 +1,177 @@
+import { jsxRenderer } from 'hono/jsx-renderer';
+
+export default jsxRenderer(({ children, title }) => {
+  return (
+    <html lang="ja">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{title || 'Job Parser'}</title>
+        <style>{`
+          * { box-sizing: border-box; margin: 0; padding: 0; }
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+          }
+          .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+          }
+          h1 { margin-bottom: 20px; color: #2c3e50; }
+          .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          }
+          .filters form {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: end;
+          }
+          .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+          }
+          label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+          }
+          input, select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+          }
+          button {
+            padding: 8px 16px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+          }
+          button:hover { background: #2980b9; }
+          table {
+            width: 100%;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          }
+          th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+          }
+          th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #666;
+          }
+          tr:hover { background: #f8f9fa; }
+          a {
+            color: #3498db;
+            text-decoration: none;
+          }
+          a:hover { text-decoration: underline; }
+          .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+          }
+          .status-new { background: #e3f2fd; color: #1976d2; }
+          .status-reviewed { background: #fff3cd; color: #856404; }
+          .status-rejected { background: #f8d7da; color: #721c24; }
+          .starred { color: #f39c12; }
+          .detail-container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          }
+          .detail-header {
+            border-bottom: 2px solid #eee;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+          }
+          .detail-field {
+            margin-bottom: 20px;
+          }
+          .detail-field label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+          }
+          .detail-field p {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+          }
+          .actions {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+          }
+          .actions form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+          }
+          textarea {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+          }
+          .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          }
+          input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+          }
+          .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+          }
+          @media (max-width: 768px) {
+            .filters form {
+              flex-direction: column;
+            }
+            .filter-group {
+              width: 100%;
+            }
+            table {
+              font-size: 14px;
+            }
+            th, td {
+              padding: 8px;
+            }
+          }
+        `}</style>
+      </head>
+      <body>
+        <div class="container">{children}</div>
+      </body>
+    </html>
+  );
+});
