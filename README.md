@@ -12,9 +12,10 @@ Japanese job listing parser and viewer web application.
 
 ## Tech Stack
 
-- **Backend**: Node.js with Hono framework
+- **Framework**: HonoX (Hono with file-based routing and islands architecture)
 - **Database**: PostgreSQL with Drizzle ORM
-- **Language**: TypeScript
+- **Language**: TypeScript with JSX
+- **Build Tool**: Vite
 - **Container**: Docker Compose
 
 ## Quick Start
@@ -54,8 +55,8 @@ npm run dev
 
 ## Scripts
 
-- `npm run dev` - Start development server with hot reload
-- `npm run build` - Build TypeScript files
+- `npm run dev` - Start development server with Vite
+- `npm run build` - Build application with Vite
 - `npm run start` - Start production server
 - `npm run db:generate` - Generate database migrations
 - `npm run db:migrate` - Run database migrations
@@ -88,6 +89,5 @@ React/TypeScriptを使用したWebアプリケーション開発
 - `GET /` - List all entries with filtering
 - `GET /entry/:id` - View entry details
 - `POST /entry/:id` - Update entry status/comment/starred
-- `GET /health` - Health check
+- `GET /api/health` - Health check
 - `PATCH /api/entries/:id` - Update entry (JSON API)
-- `POST /api/entries/bulk` - Bulk insert entries

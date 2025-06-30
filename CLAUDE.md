@@ -18,10 +18,10 @@ This is a job listing parser and viewer web application for Japanese job listing
 
 ### Development
 ```bash
-# Run development server with hot reload
+# Run development server with Vite
 npm run dev
 
-# Build TypeScript
+# Build application with Vite
 npm run build
 
 # Start production server
