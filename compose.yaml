@@ -1,8 +1,6 @@
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
+    build: .
     ports:
       - "8787:8787"
     volumes:
@@ -14,6 +12,14 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    develop:
+      watch:
+        - action: sync
+          path: ./
+          ignore: node_modules/
+          target: /app
+        - action: rebuild
+          path: ./package.json
 
   db:
     image: postgres:17-alpine
