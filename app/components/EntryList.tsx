@@ -15,13 +15,15 @@ export default function EntryList({ entries }: Props) {
   };
 
   const formatDate = (date: Date) => {
-    return new Date(date).toLocaleString('ja-JP', {
-      year: 'numeric',
+    return new Date(date).toLocaleDateString('ja-JP', {
       month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
+      day: '2-digit'
     });
+  };
+
+  const truncateText = (text: string | null, maxLength: number) => {
+    if (!text) return '-';
+    return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
   };
 
   if (entries.length === 0) {
@@ -29,27 +31,54 @@ export default function EntryList({ entries }: Props) {
   }
 
   return (
-    <table>
+    <table className="dense-table">
       <thead>
         <tr>
-          <th>タイトル</th>
+          <th>案件</th>
           <th>会社</th>
-          <th>ステータス</th>
-          <th>スター</th>
-          <th>更新日時</th>
+          <th>単価</th>
+          <th>場所</th>
+          <th>期間</th>
+          <th>概要</th>
+          <th>必須スキル</th>
+          <th>状態</th>
+          <th>更新</th>
         </tr>
       </thead>
       <tbody>
         {entries.map(entry => (
           <tr key={entry.id}>
-            <td><a href={`/entry/${entry.id}`}>{entry.title}</a></td>
-            <td>{entry.company || '-'}</td>
+            <td>
+              <div className="title-cell">
+                <a href={`/entry/${entry.id}`} className="title-link">
+                  {truncateText(entry.title, 30)}
+                </a>
+                {entry.starred && <span className="starred">★</span>}
+              </div>
+            </td>
+            <td title={entry.company || undefined}>
+              {truncateText(entry.company, 15)}
+            </td>
+            <td title={entry.price || undefined}>
+              {truncateText(entry.price, 12)}
+            </td>
+            <td title={entry.location || undefined}>
+              {truncateText(entry.location, 15)}
+            </td>
+            <td title={entry.period || undefined}>
+              {truncateText(entry.period, 10)}
+            </td>
+            <td title={entry.description || undefined}>
+              {truncateText(entry.description, 40)}
+            </td>
+            <td title={entry.requirements || undefined}>
+              {truncateText(entry.requirements, 30)}
+            </td>
             <td>
               <span className={`status status-${entry.status}`}>
                 {getStatusLabel(entry.status)}
               </span>
             </td>
-            <td>{entry.starred ? <span className="starred">★</span> : '-'}</td>
             <td>{formatDate(entry.updatedAt)}</td>
           </tr>
         ))}

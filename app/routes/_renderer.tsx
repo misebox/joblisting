@@ -16,7 +16,7 @@ export default jsxRenderer(({ children, title }) => {
             background: #f5f5f5;
           }
           .container {
-            max-width: 1200px;
+            max-width: 95vw;
             margin: 0 auto;
             padding: 20px;
           }
@@ -67,6 +67,11 @@ export default jsxRenderer(({ children, title }) => {
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            table-layout: auto;
+          }
+          .dense-table {
+            overflow-x: auto;
+            white-space: nowrap;
           }
           th, td {
             padding: 12px;
@@ -94,7 +99,28 @@ export default jsxRenderer(({ children, title }) => {
           .status-new { background: #e3f2fd; color: #1976d2; }
           .status-reviewed { background: #fff3cd; color: #856404; }
           .status-rejected { background: #f8d7da; color: #721c24; }
-          .starred { color: #f39c12; }
+          .starred { color: #f39c12; margin-left: 4px; }
+          .dense-table th, .dense-table td {
+            padding: 6px 8px;
+            font-size: 13px;
+            vertical-align: top;
+          }
+          .dense-table th {
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+          }
+          .title-cell {
+            display: flex;
+            align-items: center;
+          }
+          .title-link {
+            font-weight: 500;
+            line-height: 1.3;
+          }
+          .dense-table td[title] {
+            cursor: help;
+          }
           .detail-container {
             background: white;
             padding: 30px;
@@ -160,11 +186,14 @@ export default jsxRenderer(({ children, title }) => {
             .filter-group {
               width: 100%;
             }
-            table {
-              font-size: 14px;
+            .dense-table {
+              font-size: 11px;
             }
-            th, td {
-              padding: 8px;
+            .dense-table th, .dense-table td {
+              padding: 4px 6px;
+            }
+            .dense-table th {
+              font-size: 10px;
             }
           }
         `}</style>
