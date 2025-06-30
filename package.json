@@ -11,6 +11,7 @@
     "db:studio": "drizzle-kit studio",
     "parse": "tsx src/scripts/parse.ts",
     "test-parse": "tsx src/scripts/test-parse.ts",
+    "tag": "tsx src/scripts/tag.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

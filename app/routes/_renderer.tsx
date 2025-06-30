@@ -69,9 +69,16 @@ export default jsxRenderer(({ children, title }) => {
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             table-layout: auto;
           }
-          .dense-table {
+          .table-container {
             overflow-x: auto;
-            white-space: nowrap;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          }
+          .dense-table {
+            min-width: 1600px;
+            border-radius: 0;
+            box-shadow: none;
           }
           th, td {
             padding: 12px;
@@ -120,6 +127,32 @@ export default jsxRenderer(({ children, title }) => {
           }
           .dense-table td[title] {
             cursor: help;
+          }
+          .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2px;
+            max-width: 150px;
+          }
+          .tag {
+            display: inline-block;
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 500;
+            white-space: nowrap;
+          }
+          .tag-language { background: #e3f2fd; color: #1976d2; }
+          .tag-framework { background: #f3e5f5; color: #7b1fa2; }
+          .tag-library { background: #e8f5e8; color: #388e3c; }
+          .tag-cloud { background: #fff3e0; color: #f57c00; }
+          .tag-database { background: #fce4ec; color: #c2185b; }
+          .tag-devops { background: #f1f8e9; color: #689f38; }
+          .tag-other { background: #f5f5f5; color: #666; }
+          .tag-more {
+            font-size: 10px;
+            color: #666;
+            font-weight: 500;
           }
           .detail-container {
             background: white;

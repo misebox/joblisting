@@ -1,5 +1,5 @@
 import { createRoute } from 'honox/factory';
-import { db, entries } from '@/db';
+import { db, entries, tags, entryTags } from '@/db';
 import { eq, desc, or, like } from 'drizzle-orm';
 import EntryList from '../components/EntryList';
 import FilterForm from '../islands/FilterForm';
@@ -35,6 +35,22 @@ export default createRoute(async (c) => {
     .where(conditions.length > 0 ? (conditions.length === 1 ? conditions[0] : or(...conditions)) : undefined)
     .orderBy(desc(entries.updatedAt));
 
+  // Get tags for each entry
+  const entriesWithTags = await Promise.all(
+    allEntries.map(async (entry) => {
+      const entryTagsList = await db
+        .select({ tag: tags })
+        .from(entryTags)
+        .leftJoin(tags, eq(entryTags.tagId, tags.id))
+        .where(eq(entryTags.entryId, entry.id));
+      
+      return {
+        ...entry,
+        tags: entryTagsList.map(et => et.tag).filter(Boolean)
+      };
+    })
+  );
+
   return c.render(
     <>
       <h1>案件一覧</h1>
@@ -45,7 +61,7 @@ export default createRoute(async (c) => {
         search={search} 
       />
       
-      <EntryList entries={allEntries} />
+      <EntryList entries={entriesWithTags} />
     </>,
     { title: '案件一覧 - Job Parser' }
   );

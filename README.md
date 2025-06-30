@@ -62,6 +62,7 @@ npm run dev
 - `npm run db:migrate` - Run database migrations
 - `npm run db:studio` - Open Drizzle Studio for database management
 - `npm run parse <file>` - Parse job listings from a text file
+- `npm run tag` - Extract and assign technology tags to all entries
 
 ## File Format
 

@@ -25,5 +25,23 @@ export const entries = pgTable('entries', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
+export const tags = pgTable('tags', {
+  id: serial('id').primaryKey(),
+  name: text('name').notNull().unique(),
+  category: text('category'), // 'language', 'framework', 'library', 'cloud', 'database', 'other'
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const entryTags = pgTable('entry_tags', {
+  id: serial('id').primaryKey(),
+  entryId: serial('entry_id').references(() => entries.id, { onDelete: 'cascade' }).notNull(),
+  tagId: serial('tag_id').references(() => tags.id, { onDelete: 'cascade' }).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
 export type Entry = typeof entries.$inferSelect;
 export type NewEntry = typeof entries.$inferInsert;
+export type Tag = typeof tags.$inferSelect;
+export type NewTag = typeof tags.$inferInsert;
+export type EntryTag = typeof entryTags.$inferSelect;
+export type NewEntryTag = typeof entryTags.$inferInsert;
