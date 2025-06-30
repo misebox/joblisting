@@ -1,4 +1,4 @@
-import type { Entry } from '../../src/db';
+import type { Entry } from '@/db';
 
 interface Props {
   entries: Entry[];

@@ -1,3 +1,24 @@
+# Development stage
+FROM node:20-alpine AS development
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install all dependencies
+RUN npm ci
+
+# Copy configuration files
+COPY tsconfig.json vite.config.ts ./
+
+# Expose port
+EXPOSE 8787
+
+# Run development server
+CMD ["npm", "run", "dev"]
+
+# Builder stage
 FROM node:20-alpine AS builder
 
 WORKDIR /app
@@ -9,16 +30,14 @@ COPY package*.json ./
 RUN npm ci
 
 # Copy source code and configuration
-COPY tsconfig.json ./
-COPY vite.config.ts ./
+COPY tsconfig.json vite.config.ts drizzle.config.ts ./
 COPY src ./src
-COPY drizzle.config.ts ./
 
 # Build application
 RUN npm run build
 
-# Runtime stage
-FROM node:20-alpine
+# Production stage
+FROM node:20-alpine AS production
 
 WORKDIR /app
 

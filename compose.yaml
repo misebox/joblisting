@@ -1,6 +1,8 @@
 services:
   app:
-    build: .
+    build:
+      context: .
+      target: development
     ports:
       - "8787:8787"
     volumes:
@@ -16,7 +18,8 @@ services:
       watch:
         - action: sync
           path: ./
-          ignore: node_modules/
+          ignore:
+            - node_modules/
           target: /app
         - action: rebuild
           path: ./package.json

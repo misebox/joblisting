@@ -1,6 +1,6 @@
 import { showRoutes } from 'hono/dev';
 import { createApp } from 'honox/server';
-import { apiRouter } from '../api';
+import { apiRouter } from '@/api';
 
 const app = createApp();
 

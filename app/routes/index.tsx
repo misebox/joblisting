@@ -1,5 +1,5 @@
 import { createRoute } from 'honox/factory';
-import { db, entries } from '../../src/db';
+import { db, entries } from '@/db';
 import { eq, desc, or, like } from 'drizzle-orm';
 import EntryList from '../components/EntryList';
 import FilterForm from '../islands/FilterForm';
