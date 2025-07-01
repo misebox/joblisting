@@ -1,19 +1,11 @@
 import type { Entry } from '@/db';
+import { formatFullDate } from '@/utils/formatting';
 
 interface Props {
   entry: Entry;
 }
 
 export default function EntryDetail({ entry }: Props) {
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleString('ja-JP', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
 
   const renderField = (label: string, value: string | null) => {
     if (!value) return null;
@@ -31,8 +23,8 @@ export default function EntryDetail({ entry }: Props) {
       <div className="detail-header">
         <h1>{entry.title}</h1>
         <p style={{ color: '#666', marginTop: '10px' }}>
-          登録日: {formatDate(entry.createdAt)} | 
-          更新日: {formatDate(entry.updatedAt)}
+          登録日: {formatFullDate(entry.createdAt)} | 
+          更新日: {formatFullDate(entry.updatedAt)}
         </p>
       </div>
       

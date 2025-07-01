@@ -1,5 +1,7 @@
 import type { Entry, Tag } from '@/db';
 import SortableHeader from '@/islands/SortableHeader';
+import { formatDate } from '@/utils/formatting';
+import { getStatusLabel } from '@/utils/status';
 
 interface EntryWithTags extends Entry {
   tags?: Tag[];
@@ -27,21 +29,7 @@ export default function EntryList({ entries, currentSort = 'updatedAt', currentO
     params.set('sort', column);
     window.location.href = `/?${params.toString()}`;
   };
-  const getStatusLabel = (status: string) => {
-    const labels: Record<string, string> = {
-      new: '新規',
-      reviewed: '確認済み',
-      rejected: '却下'
-    };
-    return labels[status] || status;
-  };
 
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString('ja-JP', {
-      month: '2-digit',
-      day: '2-digit'
-    });
-  };
 
   const truncateText = (text: string | null, maxLength: number) => {
     if (!text) return '-';
