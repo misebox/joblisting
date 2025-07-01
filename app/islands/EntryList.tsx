@@ -1,7 +1,8 @@
 import type { Entry, Tag } from '@/db';
 import SortableHeader from '@/islands/SortableHeader';
+import StatusBadge from '@/components/StatusBadge';
+import TagList from '@/components/TagList';
 import { formatDate } from '@/utils/formatting';
-import { getStatusLabel } from '@/utils/status';
 
 interface EntryWithTags extends Entry {
   tags?: Tag[];
@@ -87,21 +88,10 @@ export default function EntryList({ entries, currentSort = 'updatedAt', currentO
                 {truncateText(entry.requirements, 50)}
               </td>
               <td>
-                <div className="tags">
-                  {entry.tags?.slice(0, 4).map(tag => (
-                    <span key={tag.id} className={`tag tag-${tag.category}`}>
-                      {tag.name}
-                    </span>
-                  )) || '-'}
-                  {(entry.tags?.length || 0) > 4 && (
-                    <span className="tag-more">+{(entry.tags?.length || 0) - 4}</span>
-                  )}
-                </div>
+                <TagList tags={entry.tags} />
               </td>
               <td>
-                <span className={`status status-${entry.status}`}>
-                  {getStatusLabel(entry.status)}
-                </span>
+                <StatusBadge status={entry.status} />
               </td>
               <td>{formatDate(entry.updatedAt)}</td>
             </tr>
