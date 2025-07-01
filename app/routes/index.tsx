@@ -31,7 +31,7 @@ export default createRoute(async (c) => {
   }
 
   // タグフィルタリング
-  const tagNames = selectedTags ? selectedTags.split(',').filter(tag => tag.trim() !== '') : [];
+  const tagNames = selectedTags?.split(',').filter(tag => tag.trim() !== '') || [];
   if (tagNames.length > 0) {
     // 選択されたタグ名からタグIDを取得
     const selectedTagRecords = await db
@@ -120,7 +120,7 @@ export default createRoute(async (c) => {
         search={search || ''} 
         sort={sort || 'updatedAt'}
         order={order || 'desc'}
-        selectedTags={selectedTags}
+        selectedTags={tagNames}
         availableTags={availableTags}
       />
       
