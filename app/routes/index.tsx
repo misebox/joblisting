@@ -1,6 +1,6 @@
 import { createRoute } from 'honox/factory';
 import { db, entries, tags, entryTags } from '@/db';
-import { eq, desc, or, like, and } from 'drizzle-orm';
+import { eq, desc, or, ilike, and } from 'drizzle-orm';
 import EntryList from '@/components/EntryList';
 import AutoSubmitForm from '@/islands/AutoSubmitForm';
 
@@ -22,9 +22,9 @@ export default createRoute(async (c) => {
   if (search) {
     conditions.push(
       or(
-        like(entries.title, `%${search}%`),
-        like(entries.company, `%${search}%`),
-        like(entries.description, `%${search}%`)
+        ilike(entries.title, `%${search}%`),
+        ilike(entries.company, `%${search}%`),
+        ilike(entries.description, `%${search}%`)
       )
     );
   }

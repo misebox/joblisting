@@ -23,10 +23,23 @@ const starredOptions = [
 
 export default function AutoSubmitForm({ status = 'all', starred = '', search = '' }: Props) {
   const [currentConditions, setCurrentConditions] = useState({
-    status: status,
-    starred: starred,
-    search: search
+    status,
+    starred,
+    search,
   });
+
+  // 共通のページ遷移関数
+  const navigateWithParams = (conditions: { status: string; starred: string; search: string }) => {
+    if (conditions.status === 'all' && conditions.starred === '' && conditions.search === '') {
+      window.location.href = '/';
+    } else {
+      const params = new URLSearchParams();
+      if (conditions.status !== 'all') params.set('status', conditions.status);
+      if (conditions.starred !== '') params.set('starred', conditions.starred);
+      if (conditions.search !== '') params.set('search', conditions.search);
+      window.location.href = `/?${params.toString()}`;
+    }
+  };
 
   // Load from localStorage on mount, but prefer URL params if they exist
   useEffect(() => {
@@ -36,11 +49,7 @@ export default function AutoSubmitForm({ status = 'all', starred = '', search = 
       setCurrentConditions(stored);
       // If we have stored conditions, navigate to them
       if (stored.status !== 'all' || stored.starred !== '' || stored.search !== '') {
-        const params = new URLSearchParams();
-        if (stored.status !== 'all') params.set('status', stored.status);
-        if (stored.starred) params.set('starred', stored.starred);
-        if (stored.search) params.set('search', stored.search);
-        window.location.href = `/?${params.toString()}`;
+        navigateWithParams(stored);
       }
     } else {
       // Save URL params to localStorage
@@ -63,7 +72,10 @@ export default function AutoSubmitForm({ status = 'all', starred = '', search = 
       if (conditions.status !== 'all' || conditions.starred !== '' || conditions.search !== '') {
         saveSearchConditions(conditions);
       }
-      form.submit();
+      
+      // 手動でページ遷移
+      event.preventDefault();
+      navigateWithParams(conditions);
     }
   };
 
@@ -85,21 +97,15 @@ export default function AutoSubmitForm({ status = 'all', starred = '', search = 
     };
     
     // 意味のある検索条件がある場合のみlocalStorageに保存
-    if (conditions.status !== 'all' || conditions.starred !== '' || conditions.search !== '') {
-      saveSearchConditions(conditions);
-    }
+    saveSearchConditions(conditions);
     
     // localStorage保存後に手動でページ遷移
-    const params = new URLSearchParams();
-    if (conditions.status !== 'all') params.set('status', conditions.status);
-    if (conditions.starred) params.set('starred', conditions.starred);
-    if (conditions.search) params.set('search', conditions.search);
-    window.location.href = `/?${params.toString()}`;
+    navigateWithParams(conditions);
   };
 
   const handleClear = () => {
     clearSearchConditions();
-    window.location.href = '/';
+    navigateWithParams(defaultConditions);
   };
 
   return (
@@ -116,7 +122,7 @@ export default function AutoSubmitForm({ status = 'all', starred = '', search = 
             onChange={handleChange}
           />
         </div>
-        
+       
         <div className="filter-group">
           <label htmlFor="starred">スター</label>
           <SelectBox 
