@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'hono/jsx';
 import SelectBox from '@/islands/SelectBox';
 import SearchInput from '@/islands/SearchInput';
-import { saveSearchConditions, loadSearchConditions, clearSearchConditions, defaultConditions } from '@/utils/searchStorage';
+import { saveSearchConditions, loadSearchConditions, clearSearchConditions, defaultConditions, SearchConditions } from '@/utils/searchStorage';
 
 interface Props {
   status?: string;
