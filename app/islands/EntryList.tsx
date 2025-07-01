@@ -81,7 +81,7 @@ export default function EntryList({ entries, currentSort = 'updatedAt', currentO
                 {truncateText(entry.period, 15)}
               </td>
               <td title={entry.description || undefined}>
-                {truncateText(entry.description, 60)}
+                {truncateText(entry.description, 90)}
               </td>
               <td>
                 <TagList tags={entry.tags} />
