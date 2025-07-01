@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'hono/jsx';
 import SelectBox from '@/islands/SelectBox';
 import SearchInput from '@/islands/SearchInput';
+import FormField from '@/components/FormField';
 import { saveSearchConditions, loadSearchConditions, clearSearchConditions, defaultConditions, SearchConditions } from '@/utils/searchStorage';
 
 interface Props {
@@ -137,8 +138,7 @@ export default function AutoSubmitForm({ status = 'all', starred = '', search = 
   return (
     <div className="filters">
       <form method="get" action="/" onSubmit={handleSubmit}>
-        <div className="filter-group">
-          <label htmlFor="status">ステータス</label>
+        <FormField label="ステータス" htmlFor="status">
           <SelectBox 
             key={`status-${status}`}
             name="status"
@@ -147,10 +147,9 @@ export default function AutoSubmitForm({ status = 'all', starred = '', search = 
             options={statusOptions}
             onChange={handleChange}
           />
-        </div>
+        </FormField>
        
-        <div className="filter-group">
-          <label htmlFor="starred">スター</label>
+        <FormField label="スター" htmlFor="starred">
           <SelectBox 
             key={`starred-${starred}`}
             name="starred"
@@ -159,17 +158,15 @@ export default function AutoSubmitForm({ status = 'all', starred = '', search = 
             options={starredOptions}
             onChange={handleChange}
           />
-        </div>
+        </FormField>
         
-        <div className="filter-group">
-          <label htmlFor="search">検索</label>
+        <FormField label="検索" htmlFor="search">
           <SearchInput 
             defaultValue={search}
           />
-        </div>
+        </FormField>
         
-        <div className="filter-group">
-          <label htmlFor="sort">並び順</label>
+        <FormField label="並び順" htmlFor="sort">
           <SelectBox 
             key={`sort-${sort}`}
             name="sort"
@@ -178,10 +175,9 @@ export default function AutoSubmitForm({ status = 'all', starred = '', search = 
             options={sortOptions}
             onChange={handleChange}
           />
-        </div>
+        </FormField>
         
-        <div className="filter-group">
-          <label htmlFor="order">順序</label>
+        <FormField label="順序" htmlFor="order">
           <SelectBox 
             key={`order-${order}`}
             name="order"
@@ -190,7 +186,7 @@ export default function AutoSubmitForm({ status = 'all', starred = '', search = 
             options={orderOptions}
             onChange={handleChange}
           />
-        </div>
+        </FormField>
         
         <div className="filter-actions">
           <button type="submit">検索</button>
