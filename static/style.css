@@ -6,7 +6,7 @@ body {
   background: #f5f5f5;
 }
 .container {
-  max-width: 95vw;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 20px;
 }
@@ -75,7 +75,7 @@ table {
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 .dense-table {
-  min-width: 1600px;
+  min-width: 1200px;
   border-radius: 0;
   box-shadow: none;
 }
