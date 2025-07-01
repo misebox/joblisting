@@ -1,4 +1,4 @@
-import type { Entry } from '@/db';
+import type { Entry } from '@/app/db';
 
 interface Props {
   entry: Entry;

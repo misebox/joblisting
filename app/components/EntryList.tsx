@@ -1,4 +1,4 @@
-import type { Entry, Tag } from '@/db';
+import type { Entry, Tag } from '@/app/db';
 
 interface EntryWithTags extends Entry {
   tags?: Tag[];

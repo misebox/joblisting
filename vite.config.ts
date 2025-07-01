@@ -3,12 +3,10 @@ import honox from 'honox/vite'
 import { resolve } from 'path'
 
 export default defineConfig({
-  plugins: [honox({
-    root: './src/app'
-  })],
+  plugins: [honox()],
   resolve: {
     alias: {
-      '@': resolve('./src'),
+      '@': resolve('.'),
     },
   },
   server: {

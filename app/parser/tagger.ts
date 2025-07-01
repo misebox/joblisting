@@ -1,4 +1,4 @@
-import { db, tags, entryTags } from '@/db';
+import { db, tags, entryTags, entries } from '@/app/db';
 import { eq } from 'drizzle-orm';
 
 const TECH_KEYWORDS = {

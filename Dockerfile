@@ -10,7 +10,7 @@ COPY package*.json ./
 RUN npm ci
 
 # Copy configuration files
-COPY tsconfig.json vite.config.ts ./
+COPY . ./
 
 # Expose port
 EXPOSE 8787
@@ -30,8 +30,7 @@ COPY package*.json ./
 RUN npm ci
 
 # Copy source code and configuration
-COPY tsconfig.json vite.config.ts drizzle.config.ts ./
-COPY src ./src
+COPY . ./
 
 # Build application
 RUN npm run build
