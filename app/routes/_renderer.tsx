@@ -1,4 +1,5 @@
 import { jsxRenderer } from 'hono/jsx-renderer';
+import { Script } from 'honox/server';
 
 export default jsxRenderer(({ children, title }: { children?: any; title?: string }) => {
   return (
@@ -11,6 +12,7 @@ export default jsxRenderer(({ children, title }: { children?: any; title?: strin
       </head>
       <body>
         <div class="container">{children}</div>
+        <Script src="/app/client.tsx" />
       </body>
     </html>
   );

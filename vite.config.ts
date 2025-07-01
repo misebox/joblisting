@@ -3,7 +3,11 @@ import honox from 'honox/vite'
 import { resolve } from 'path'
 
 export default defineConfig({
-  plugins: [honox()],
+  plugins: [honox({
+    client: {
+      input: ['./app/client.tsx']
+    }
+  })],
   resolve: {
     alias: {
       '@': resolve('./app'),
