@@ -1,4 +1,4 @@
-import { TechTagger } from '@/app/parser/tagger';
+import { TechTagger } from '@/parser/tagger';
 
 async function tagEntries() {
   try {

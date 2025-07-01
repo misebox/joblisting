@@ -160,3 +160,8 @@ This approach provides:
 - Reduced JavaScript bundle size
 - Progressive enhancement
 - SEO-friendly server-side rendering
+
+## Development Recommendations
+
+- **Component Management**:
+  - Check whether dynamic component or not before modify component

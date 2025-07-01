@@ -1,11 +1,12 @@
 import { createRoute } from 'honox/factory';
-import { db, entries, tags, entryTags } from '@/app/db';
+import { db, entries, tags, entryTags } from '@/db';
 import { eq, desc, or, like } from 'drizzle-orm';
-import EntryList from '../components/EntryList';
-import FilterForm from '../islands/FilterForm';
+import EntryList from '@/components/EntryList';
+import FilterForm from '@/components/FilterForm';
 
 export default createRoute(async (c) => {
   const { status, starred, search } = c.req.query();
+  console.log('Query params:', { status, starred, search });
 
   // Build query with filters
   const conditions = [];
@@ -54,15 +55,15 @@ export default createRoute(async (c) => {
   return c.render(
     <>
       <h1>案件一覧</h1>
-      
+
       <FilterForm 
-        status={status} 
-        starred={starred} 
-        search={search} 
+        key={`${status}-${starred}-${search}`}
+        status={status || 'all'} 
+        starred={starred || ''} 
+        search={search || ''} 
       />
       
       <EntryList entries={entriesWithTags} />
-    </>,
-    { title: '案件一覧 - Job Parser' }
+    </>
   );
 });

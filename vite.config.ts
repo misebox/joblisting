@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [honox()],
   resolve: {
     alias: {
-      '@': resolve('.'),
+      '@': resolve('./app'),
     },
   },
   server: {

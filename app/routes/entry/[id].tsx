@@ -1,8 +1,8 @@
 import { createRoute } from 'honox/factory';
-import { db, entries } from '@/app/db';
+import { db, entries } from '@/db';
 import { eq } from 'drizzle-orm';
-import EntryDetail from '../../components/EntryDetail';
-import EntryActions from '../../islands/EntryActions';
+import EntryDetail from '@/components/EntryDetail';
+import EntryActions from '@/islands/EntryActions';
 
 export default createRoute(async (c) => {
   const id = parseInt(c.req.param('id'));
@@ -30,7 +30,6 @@ export default createRoute(async (c) => {
           initialStarred={entry.starred}
         />
       </div>
-    </>,
-    { title: `${entry.title} - Job Parser` }
+    </>
   );
 });
