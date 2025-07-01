@@ -3,32 +3,50 @@ import { useState } from 'hono/jsx';
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  onImport: (file: File) => Promise<void>;
+  onImport: (files: File[], onProgress: (fileName: string, results: any[]) => void) => Promise<void>;
+}
+
+interface ImportLog {
+  fileName: string;
+  entries: Array<{
+    title: string;
+    company: string;
+    status: 'created' | 'updated' | 'skipped' | 'error';
+  }>;
+}
+
+interface ImportStats {
+  created: number;
+  updated: number;
+  skipped: number;
+  errors: number;
 }
 
 export default function ImportDialog({ isOpen, onClose, onImport }: Props) {
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<{ success: boolean; message: string } | null>(null);
+  const [importLogs, setImportLogs] = useState<ImportLog[]>([]);
+  const [importStats, setImportStats] = useState<ImportStats>({ created: 0, updated: 0, skipped: 0, errors: 0 });
 
   if (!isOpen) return null;
 
-  const handleFileSelect = async (file: File) => {
-    if (!file.name.endsWith('.txt')) {
+  const handleFileSelect = async (files: File[]) => {
+    const txtFiles = files.filter(file => file.name.endsWith('.txt'));
+    
+    if (txtFiles.length === 0) {
       setUploadStatus({ success: false, message: 'テキストファイル(.txt)のみ対応しています' });
       return;
     }
 
     setIsUploading(true);
     setUploadStatus(null);
+    setImportLogs([]);
+    setImportStats({ created: 0, updated: 0, skipped: 0, errors: 0 });
 
     try {
-      await onImport(file);
-      setUploadStatus({ success: true, message: 'ファイルを正常に取り込みました' });
-      setTimeout(() => {
-        onClose();
-        setUploadStatus(null);
-      }, 2000);
+      await onImport(txtFiles, updateImportProgress);
+      setUploadStatus({ success: true, message: `${txtFiles.length}ファイルの取り込みが完了しました` });
     } catch (error) {
       console.error('Import error:', error);
       setUploadStatus({ success: false, message: 'ファイルの取り込みに失敗しました' });
@@ -39,9 +57,9 @@ export default function ImportDialog({ isOpen, onClose, onImport }: Props) {
 
   const handleFileInput = (event: Event) => {
     const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (file) {
-      handleFileSelect(file);
+    const files = input.files;
+    if (files && files.length > 0) {
+      handleFileSelect(Array.from(files));
     }
   };
 
@@ -61,7 +79,7 @@ export default function ImportDialog({ isOpen, onClose, onImport }: Props) {
     
     const files = event.dataTransfer?.files;
     if (files && files.length > 0) {
-      handleFileSelect(files[0]);
+      handleFileSelect(Array.from(files));
     }
   };
 
@@ -71,12 +89,45 @@ export default function ImportDialog({ isOpen, onClose, onImport }: Props) {
     }
   };
 
+  const handleClose = () => {
+    setImportLogs([]);
+    setImportStats({ created: 0, updated: 0, skipped: 0, errors: 0 });
+    setUploadStatus(null);
+    onClose();
+  };
+
+  // Function to update logs and stats (will be called from ImportManager)
+  const updateImportProgress = (fileName: string, results: any[]) => {
+    const newLog: ImportLog = {
+      fileName,
+      entries: results.map(r => ({
+        title: r.title || 'Unknown',
+        company: r.company || 'Unknown',
+        status: r.status
+      }))
+    };
+
+    setImportLogs(prev => [...prev, newLog]);
+    
+    const stats = results.reduce((acc, r) => {
+      acc[r.status as keyof ImportStats]++;
+      return acc;
+    }, { created: 0, updated: 0, skipped: 0, errors: 0 });
+
+    setImportStats(prev => ({
+      created: prev.created + stats.created,
+      updated: prev.updated + stats.updated,
+      skipped: prev.skipped + stats.skipped,
+      errors: prev.errors + stats.errors
+    }));
+  };
+
   return (
     <div className="dialog-backdrop" onClick={handleBackdropClick}>
       <div className="dialog-content">
         <div className="dialog-header">
           <h2>案件データ取り込み</h2>
-          <button className="close-button" onClick={onClose}>×</button>
+          <button className="close-button" onClick={handleClose}>×</button>
         </div>
         
         <div className="dialog-body">
@@ -104,16 +155,52 @@ export default function ImportDialog({ isOpen, onClose, onImport }: Props) {
                     <input
                       type="file"
                       accept=".txt"
+                      multiple
                       onChange={handleFileInput}
                       className="file-input"
                     />
                     ファイルを選択
                   </label>
                 </div>
-                <p className="file-note">対応形式: テキストファイル (.txt)</p>
+                <p className="file-note">対応形式: テキストファイル (.txt)、複数ファイル対応</p>
               </>
             )}
           </div>
+          
+          {/* Import Progress Log */}
+          {(importLogs.length > 0 || isUploading) && (
+            <div className="import-progress">
+              <h3>取り込み状況</h3>
+              <div className="import-log">
+                {importLogs.map((log, index) => (
+                  <div key={index} className="import-file-log">
+                    <div className="file-name">📁 {log.fileName}</div>
+                    {log.entries.map((entry, entryIndex) => (
+                      <div key={entryIndex} className={`import-entry-log ${entry.status}`}>
+                        <span className="status-icon">
+                          {entry.status === 'created' && '✅'}
+                          {entry.status === 'updated' && '🔄'}
+                          {entry.status === 'skipped' && '⏭️'}
+                          {entry.status === 'error' && '❌'}
+                        </span>
+                        <span className="entry-info">
+                          {entry.title} - {entry.company}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+              
+              {/* Import Stats */}
+              <div className="import-stats">
+                <div className="stat-item created">新規: {importStats.created}件</div>
+                <div className="stat-item updated">更新: {importStats.updated}件</div>
+                <div className="stat-item skipped">スキップ: {importStats.skipped}件</div>
+                <div className="stat-item errors">エラー: {importStats.errors}件</div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

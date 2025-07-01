@@ -62,22 +62,39 @@ export const POST = createRoute(async (c) => {
           .limit(1);
 
         if (existingEntry.length > 0) {
-          // Update existing entry
-          await db
-            .update(entries)
-            .set({
-              ...entry,
-              hash: entryHash,
-              updatedAt: new Date()
-            })
-            .where(eq(entries.id, existingEntry[0].id));
+          // Check if content has actually changed by comparing hashes
+          const [currentEntry] = await db
+            .select({ hash: entries.hash })
+            .from(entries)
+            .where(eq(entries.id, existingEntry[0].id))
+            .limit(1);
+          
+          if (currentEntry.hash === entryHash) {
+            // No changes, skip update
+            results.push({
+              id: existingEntry[0].id,
+              title: existingEntry[0].title,
+              company: entry.company || 'Unknown',
+              status: 'skipped'
+            });
+          } else {
+            // Content changed, update entry
+            await db
+              .update(entries)
+              .set({
+                ...entry,
+                hash: entryHash,
+                updatedAt: new Date()
+              })
+              .where(eq(entries.id, existingEntry[0].id));
 
-          results.push({
-            id: existingEntry[0].id,
-            title: existingEntry[0].title,
-            company: entry.company || 'Unknown',
-            status: 'updated'
-          });
+            results.push({
+              id: existingEntry[0].id,
+              title: existingEntry[0].title,
+              company: entry.company || 'Unknown',
+              status: 'updated'
+            });
+          }
         } else {
           // Tag the entry
           const entryText = [
@@ -151,15 +168,17 @@ export const POST = createRoute(async (c) => {
 
     const createdCount = results.filter(r => r.status === 'created').length;
     const updatedCount = results.filter(r => r.status === 'updated').length;
+    const skippedCount = results.filter(r => r.status === 'skipped').length;
     const errorCount = results.filter(r => r.status === 'error').length;
     
     let message = '';
-    if (createdCount > 0 && updatedCount > 0) {
-      message = `${createdCount}件の新規案件を追加、${updatedCount}件の既存案件を更新しました`;
-    } else if (createdCount > 0) {
-      message = `${createdCount}件の案件を新規追加しました`;
-    } else if (updatedCount > 0) {
-      message = `${updatedCount}件の既存案件を更新しました`;
+    const parts = [];
+    if (createdCount > 0) parts.push(`${createdCount}件新規追加`);
+    if (updatedCount > 0) parts.push(`${updatedCount}件更新`);
+    if (skippedCount > 0) parts.push(`${skippedCount}件スキップ`);
+    
+    if (parts.length > 0) {
+      message = parts.join('、') + 'しました';
     } else {
       message = '処理対象の案件がありませんでした';
     }

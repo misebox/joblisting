@@ -325,9 +325,9 @@ input[type="checkbox"] {
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   width: 90%;
-  max-width: 500px;
+  max-width: 600px;
   max-height: 90vh;
-  overflow: hidden;
+  overflow-y: auto;
 }
 .dialog-header {
   display: flex;
@@ -433,6 +433,87 @@ input[type="checkbox"] {
 }
 .import-button:hover {
   background: #219a52;
+}
+.import-progress {
+  margin-top: 20px;
+  border-top: 1px solid #eee;
+  padding-top: 15px;
+}
+.import-progress h3 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  color: #333;
+}
+.import-log {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  padding: 10px;
+  max-height: 200px;
+  overflow-y: auto;
+  margin-bottom: 15px;
+  font-family: monospace;
+  font-size: 12px;
+}
+.import-file-log {
+  margin-bottom: 10px;
+}
+.file-name {
+  font-weight: bold;
+  color: #495057;
+  margin-bottom: 5px;
+}
+.import-entry-log {
+  display: flex;
+  align-items: center;
+  padding: 2px 0;
+  padding-left: 15px;
+}
+.status-icon {
+  margin-right: 8px;
+  width: 16px;
+}
+.entry-info {
+  color: #6c757d;
+}
+.import-entry-log.created .entry-info {
+  color: #28a745;
+}
+.import-entry-log.updated .entry-info {
+  color: #007bff;
+}
+.import-entry-log.skipped .entry-info {
+  color: #6c757d;
+}
+.import-entry-log.error .entry-info {
+  color: #dc3545;
+}
+.import-stats {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+.stat-item {
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.stat-item.created {
+  background: #d4edda;
+  color: #155724;
+}
+.stat-item.updated {
+  background: #cce5ff;
+  color: #004085;
+}
+.stat-item.skipped {
+  background: #f8f9fa;
+  color: #6c757d;
+}
+.stat-item.errors {
+  background: #f8d7da;
+  color: #721c24;
 }
 @media (max-width: 768px) {
   .filters form {

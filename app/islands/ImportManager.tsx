@@ -4,29 +4,34 @@ import ImportDialog from './ImportDialog';
 export default function ImportManager() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const handleImport = async (file: File) => {
-    const formData = new FormData();
-    formData.append('file', file);
+  const handleImport = async (files: File[], onProgress: (fileName: string, results: any[]) => void) => {
+    for (const file of files) {
+      const formData = new FormData();
+      formData.append('file', file);
 
-    const response = await fetch('/api/import', {
-      method: 'POST',
-      body: formData,
-    });
+      const response = await fetch('/api/import', {
+        method: 'POST',
+        body: formData,
+      });
 
-    const result = await response.json();
-    
-    if (!result.success) {
-      console.error('Import API error:', result);
-      let errorMessage = result.error || 'Import failed';
-      if (result.details && result.details.length > 0) {
-        errorMessage += '\n\nDetails:\n' + result.details.map(d => 
-          `Block ${d.blockIndex}: ${d.type} - ${d.detail}`
-        ).join('\n');
+      const result = await response.json();
+      
+      if (!result.success) {
+        console.error('Import API error:', result);
+        let errorMessage = result.error || 'Import failed';
+        if (result.details && result.details.length > 0) {
+          errorMessage += '\n\nDetails:\n' + result.details.map(d => 
+            `Block ${d.blockIndex}: ${d.type} - ${d.detail}`
+          ).join('\n');
+        }
+        throw new Error(errorMessage);
       }
-      throw new Error(errorMessage);
+
+      // Update progress for this file
+      onProgress(file.name, result.results);
     }
 
-    // Refresh the page to show new entries
+    // Refresh the page to show new entries after all files are processed
     window.location.reload();
   };
 
