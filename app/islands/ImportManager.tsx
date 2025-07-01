@@ -16,7 +16,14 @@ export default function ImportManager() {
     const result = await response.json();
     
     if (!result.success) {
-      throw new Error(result.error || 'Import failed');
+      console.error('Import API error:', result);
+      let errorMessage = result.error || 'Import failed';
+      if (result.details && result.details.length > 0) {
+        errorMessage += '\n\nDetails:\n' + result.details.map(d => 
+          `Block ${d.blockIndex}: ${d.type} - ${d.detail}`
+        ).join('\n');
+      }
+      throw new Error(errorMessage);
     }
 
     // Refresh the page to show new entries

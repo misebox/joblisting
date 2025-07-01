@@ -29,9 +29,17 @@ export const POST = createRoute(async (c) => {
       return c.json({ 
         success: false, 
         error: 'Failed to parse file', 
-        details: parsed.errors 
+        details: parsed.errors.map(e => ({
+          type: e.type,
+          blockIndex: e.blockIndex,
+          detail: e.detail,
+          rawSnippet: e.rawSnippet.substring(0, 100)
+        }))
       }, 400);
     }
+
+    // Even if there are some errors, continue if we have entries
+    console.log(`Parsed ${parsed.entries.length} entries with ${parsed.errors.length} errors`);
 
     // Initialize tagger
     const tagger = new TechTagger();
