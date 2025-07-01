@@ -1,5 +1,7 @@
+import { useState, useEffect } from 'hono/jsx';
 import SelectBox from '@/islands/SelectBox';
 import SearchInput from '@/islands/SearchInput';
+import { saveSearchConditions, loadSearchConditions, clearSearchConditions, defaultConditions } from '@/utils/searchStorage';
 
 interface Props {
   status?: string;
@@ -20,11 +22,50 @@ const starredOptions = [
 ];
 
 export default function AutoSubmitForm({ status = 'all', starred = '', search = '' }: Props) {
+  const [currentConditions, setCurrentConditions] = useState({
+    status: status,
+    starred: starred,
+    search: search
+  });
+
+  // Load from localStorage on mount, but prefer URL params if they exist
+  useEffect(() => {
+    const hasUrlParams = status !== 'all' || starred !== '' || search !== '';
+    if (!hasUrlParams) {
+      const stored = loadSearchConditions();
+      setCurrentConditions(stored);
+      // If we have stored conditions, navigate to them
+      if (stored.status !== 'all' || stored.starred !== '' || stored.search !== '') {
+        const params = new URLSearchParams();
+        if (stored.status !== 'all') params.set('status', stored.status);
+        if (stored.starred) params.set('starred', stored.starred);
+        if (stored.search) params.set('search', stored.search);
+        window.location.href = `/?${params.toString()}`;
+      }
+    } else {
+      // Save URL params to localStorage
+      saveSearchConditions({ status, starred, search });
+    }
+  }, []);
+
   const handleChange = (event: Event) => {
     const form = (event.target as HTMLSelectElement).form;
     if (form) {
+      // Save to localStorage before submitting
+      const formData = new FormData(form);
+      const conditions = {
+        status: formData.get('status') as string || 'all',
+        starred: formData.get('starred') as string || '',
+        search: formData.get('search') as string || ''
+      };
+      saveSearchConditions(conditions);
       form.submit();
     }
+  };
+
+  const handleClear = () => {
+    clearSearchConditions();
+    window.location.href = '/';
   };
 
   return (
@@ -61,7 +102,12 @@ export default function AutoSubmitForm({ status = 'all', starred = '', search = 
           />
         </div>
         
-        <button type="submit">検索</button>
+        <div className="filter-actions">
+          <button type="submit">検索</button>
+          <button type="button" onClick={handleClear} className="clear-button">
+            クリア
+          </button>
+        </div>
       </form>
     </div>
   );
