@@ -75,7 +75,6 @@ export default createRoute(async (c) => {
                     sort === 'location' ? entries.location :
                     sort === 'period' ? entries.period :
                     sort === 'description' ? entries.description :
-                    sort === 'requirements' ? entries.requirements :
                     sort === 'status' ? entries.status :
                     entries.updatedAt;
   

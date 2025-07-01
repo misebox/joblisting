@@ -52,7 +52,6 @@ export default function EntryList({ entries, currentSort = 'updatedAt', currentO
             <SortableHeader column="location" label="場所" currentSort={currentSort} currentOrder={currentOrder} onSort={handleSort} />
             <SortableHeader column="period" label="期間" currentSort={currentSort} currentOrder={currentOrder} onSort={handleSort} />
             <SortableHeader column="description" label="概要" currentSort={currentSort} currentOrder={currentOrder} onSort={handleSort} />
-            <SortableHeader column="requirements" label="必須スキル" currentSort={currentSort} currentOrder={currentOrder} onSort={handleSort} />
             <th>タグ</th>
             <SortableHeader column="status" label="状態" currentSort={currentSort} currentOrder={currentOrder} onSort={handleSort} />
             <SortableHeader column="updatedAt" label="更新" currentSort={currentSort} currentOrder={currentOrder} onSort={handleSort} />
@@ -83,9 +82,6 @@ export default function EntryList({ entries, currentSort = 'updatedAt', currentO
               </td>
               <td title={entry.description || undefined}>
                 {truncateText(entry.description, 60)}
-              </td>
-              <td title={entry.requirements || undefined}>
-                {truncateText(entry.requirements, 50)}
               </td>
               <td>
                 <TagList tags={entry.tags} />

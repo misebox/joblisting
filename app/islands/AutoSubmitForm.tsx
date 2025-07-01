@@ -37,7 +37,6 @@ const sortOptions = [
   { value: 'location', label: '場所' },
   { value: 'period', label: '期間' },
   { value: 'description', label: '概要' },
-  { value: 'requirements', label: '必須スキル' },
   { value: 'status', label: '状態' }
 ];
 
