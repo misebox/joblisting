@@ -3,6 +3,7 @@ import { db, entries, tags, entryTags } from '@/db';
 import { eq, desc, asc, or, ilike, and, inArray, count, sql } from 'drizzle-orm';
 import EntryList from '@/islands/EntryList';
 import AutoSubmitForm from '@/islands/AutoSubmitForm';
+import ImportManager from '@/islands/ImportManager';
 
 export default createRoute(async (c) => {
   const { status, starred, search, sort = 'updatedAt', order = 'desc', tags: selectedTags } = c.req.query();
@@ -107,7 +108,10 @@ export default createRoute(async (c) => {
 
   return c.render(
     <>
-      <h1>案件一覧</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h1>案件一覧</h1>
+        <ImportManager />
+      </div>
 
       <AutoSubmitForm 
         key={`${status}-${starred}-${search}-${sort}-${order}-${selectedTags}`}
