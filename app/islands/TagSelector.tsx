@@ -9,7 +9,9 @@ interface Props {
 }
 
 export default function TagSelector({ availableTags, selectedTags = [], onChange, onFormSubmit }: Props) {
-  const selectedTagNames = Array.isArray(selectedTags) ? selectedTags : selectedTags ? [selectedTags] : [];
+  const selectedTagNames = typeof selectedTags === 'string' 
+    ? selectedTags.split(',').filter(tag => tag.trim() !== '') 
+    : Array.isArray(selectedTags) ? selectedTags : [];
   const [selected, setSelected] = useState(selectedTagNames);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -29,14 +31,14 @@ export default function TagSelector({ availableTags, selectedTags = [], onChange
         const existingTagInputs = form.querySelectorAll('input[name="tags"]');
         existingTagInputs.forEach(input => input.remove());
         
-        // 新しいタグinputを追加
-        newSelected.forEach(tag => {
+        // カンマ区切りで1つのinputとして追加
+        if (newSelected.length > 0) {
           const input = document.createElement('input');
           input.type = 'hidden';
           input.name = 'tags';
-          input.value = tag;
+          input.value = newSelected.join(',');
           form.appendChild(input);
-        });
+        }
         
         // フォーム送信
         form.submit();
@@ -138,14 +140,13 @@ export default function TagSelector({ availableTags, selectedTags = [], onChange
       </div>
 
       {/* 隠しinput要素でフォーム送信用 */}
-      {selected.map((tagName, index) => (
+      {selected.length > 0 && (
         <input
-          key={index}
           type="hidden"
           name="tags"
-          value={tagName}
+          value={selected.join(',')}
         />
-      ))}
+      )}
     </div>
   );
 }

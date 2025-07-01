@@ -31,7 +31,7 @@ export default createRoute(async (c) => {
 
   // タグフィルタリング
   if (selectedTags) {
-    const tagNames = Array.isArray(selectedTags) ? selectedTags : [selectedTags];
+    const tagNames = selectedTags.split(',').filter(tag => tag.trim() !== '');
     if (tagNames.length > 0) {
       // 選択されたタグ名からタグIDを取得
       const selectedTagRecords = await db

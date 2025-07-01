@@ -53,7 +53,7 @@ export default function AutoSubmitForm({ status = 'all', starred = '', search = 
     search,
     sort,
     order,
-    tags: Array.isArray(selectedTags) ? selectedTags : selectedTags ? [selectedTags] : [],
+    tags: selectedTags ? selectedTags.split(',').filter(tag => tag.trim() !== '') : [],
   });
 
   // 共通のページ遷移関数
@@ -65,7 +65,7 @@ export default function AutoSubmitForm({ status = 'all', starred = '', search = 
     if (conditions.sort !== 'updatedAt') params.set('sort', conditions.sort);
     if (conditions.order !== 'desc') params.set('order', conditions.order);
     if (conditions.tags && conditions.tags.length > 0) {
-      conditions.tags.forEach(tag => params.append('tags', tag));
+      params.set('tags', conditions.tags.join(','));
     }
     
     const queryString = params.toString();
@@ -74,7 +74,7 @@ export default function AutoSubmitForm({ status = 'all', starred = '', search = 
 
   // Load from localStorage on mount, but prefer URL params if they exist
   useEffect(() => {
-    const currentTags = Array.isArray(selectedTags) ? selectedTags : selectedTags ? [selectedTags] : [];
+    const currentTags = selectedTags ? selectedTags.split(',').filter(tag => tag.trim() !== '') : [];
     const hasUrlParams = status !== 'all' || starred !== '' || search !== '' || sort !== 'updatedAt' || order !== 'desc' || currentTags.length > 0;
     if (!hasUrlParams) {
       const stored = loadSearchConditions();
