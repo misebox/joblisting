@@ -1,12 +1,12 @@
 import { createRoute } from 'honox/factory';
 import { db, entries, tags, entryTags } from '@/db';
-import { eq, desc, asc, or, ilike, and } from 'drizzle-orm';
+import { eq, desc, asc, or, ilike, and, inArray } from 'drizzle-orm';
 import EntryList from '@/islands/EntryList';
 import AutoSubmitForm from '@/islands/AutoSubmitForm';
 
 export default createRoute(async (c) => {
-  const { status, starred, search, sort = 'updatedAt', order = 'desc' } = c.req.query();
-  console.log('Query params:', { status, starred, search, sort, order });
+  const { status, starred, search, sort = 'updatedAt', order = 'desc', tags: selectedTags } = c.req.query();
+  console.log('Query params:', { status, starred, search, sort, order, selectedTags });
 
   // Build query with filters
   const conditions = [];
@@ -27,6 +27,37 @@ export default createRoute(async (c) => {
         ilike(entries.description, `%${search}%`)
       )
     );
+  }
+
+  // タグフィルタリング
+  if (selectedTags) {
+    const tagNames = Array.isArray(selectedTags) ? selectedTags : [selectedTags];
+    if (tagNames.length > 0) {
+      // 選択されたタグ名からタグIDを取得
+      const selectedTagRecords = await db
+        .select()
+        .from(tags)
+        .where(inArray(tags.name, tagNames));
+      
+      const selectedTagIds = selectedTagRecords.map(tag => tag.id);
+      
+      if (selectedTagIds.length > 0) {
+        // 選択されたタグを持つエントリのIDを取得
+        const entryIdsWithTags = await db
+          .selectDistinct({ entryId: entryTags.entryId })
+          .from(entryTags)
+          .where(inArray(entryTags.tagId, selectedTagIds));
+        
+        const entryIds = entryIdsWithTags.map(et => et.entryId);
+        
+        if (entryIds.length > 0) {
+          conditions.push(inArray(entries.id, entryIds));
+        } else {
+          // 該当するタグがない場合は結果を空にする
+          conditions.push(eq(entries.id, -1));
+        }
+      }
+    }
   }
 
   // Determine sort column
@@ -65,17 +96,25 @@ export default createRoute(async (c) => {
     })
   );
 
+  // 利用可能なタグ一覧を取得
+  const availableTags = await db
+    .select()
+    .from(tags)
+    .orderBy(tags.category, tags.name);
+
   return c.render(
     <>
       <h1>案件一覧</h1>
 
       <AutoSubmitForm 
-        key={`${status}-${starred}-${search}-${sort}-${order}`}
+        key={`${status}-${starred}-${search}-${sort}-${order}-${selectedTags}`}
         status={status || 'all'} 
         starred={starred || ''} 
         search={search || ''} 
         sort={sort || 'updatedAt'}
         order={order || 'desc'}
+        selectedTags={selectedTags}
+        availableTags={availableTags}
       />
       
       <EntryList 

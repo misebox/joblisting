@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'hono/jsx';
 import SelectBox from '@/islands/SelectBox';
 import SearchInput from '@/islands/SearchInput';
+import TagSelector from '@/islands/TagSelector';
 import FormField from '@/components/FormField';
+import type { Tag } from '@/db';
 import { saveSearchConditions, loadSearchConditions, clearSearchConditions, defaultConditions, SearchConditions } from '@/utils/searchStorage';
 
 interface Props {
@@ -10,6 +12,8 @@ interface Props {
   search?: string;
   sort?: string;
   order?: string;
+  selectedTags?: string | string[];
+  availableTags?: Tag[];
 }
 
 const statusOptions = [
@@ -42,7 +46,7 @@ const orderOptions = [
   { value: 'asc', label: '昇順' }
 ];
 
-export default function AutoSubmitForm({ status = 'all', starred = '', search = '', sort = 'updatedAt', order = 'desc' }: Props) {
+export default function AutoSubmitForm({ status = 'all', starred = '', search = '', sort = 'updatedAt', order = 'desc', selectedTags, availableTags = [] }: Props) {
   const [currentConditions, setCurrentConditions] = useState({
     status,
     starred,
@@ -163,6 +167,13 @@ export default function AutoSubmitForm({ status = 'all', starred = '', search = 
         <FormField label="検索" htmlFor="search">
           <SearchInput 
             defaultValue={search}
+          />
+        </FormField>
+        
+        <FormField label="タグ">
+          <TagSelector 
+            availableTags={availableTags}
+            selectedTags={selectedTags}
           />
         </FormField>
         

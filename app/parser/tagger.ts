@@ -58,7 +58,8 @@ export class TechTagger {
     for (const keyword of keywords) {
       const normalizedKeyword = keyword.toLowerCase();
       // Word boundary check to avoid partial matches
-      const regex = new RegExp(`\\b${normalizedKeyword.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&')}\\b`, 'i');
+      const escapedKeyword = normalizedKeyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`\\b${escapedKeyword}\\b`, 'i');
       if (regex.test(normalizedText)) {
         found.push(keyword);
       }
