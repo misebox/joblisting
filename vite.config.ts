@@ -12,5 +12,9 @@ export default defineConfig({
   server: {
     port: 8787,
     host: '0.0.0.0',
+    hmr: {
+      host: '0.0.0.0',
+      port: 8788,
+    }
   },
 })

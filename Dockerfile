@@ -13,7 +13,7 @@ RUN npm ci
 COPY . ./
 
 # Expose port
-EXPOSE 8787
+EXPOSE 8787-8788
 
 # Run development server
 CMD ["npm", "run", "dev"]

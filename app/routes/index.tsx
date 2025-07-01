@@ -47,7 +47,7 @@ export default createRoute(async (c) => {
       
       return {
         ...entry,
-        tags: entryTagsList.map(et => et.tag).filter(Boolean)
+        tags: entryTagsList.map(et => et.tag).filter((tag): tag is NonNullable<typeof tag> => tag !== null)
       };
     })
   );
