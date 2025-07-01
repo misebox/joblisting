@@ -6,12 +6,12 @@ interface SelectOption {
 interface Props {
   name: string;
   id: string;
-  value: string;
+  defaultValue: string;
   options: SelectOption[];
   onChange?: (event: Event) => void;
 }
 
-export default function SelectBox({ name, id, value, options, onChange }: Props) {
+export default function SelectBox({ name, id, defaultValue, options, onChange }: Props) {
   const handleChange = (event: any) => {
     if (onChange) {
       onChange(event);
@@ -22,11 +22,14 @@ export default function SelectBox({ name, id, value, options, onChange }: Props)
     <select 
       name={name} 
       id={id} 
-      value={value}
       onChange={handleChange}
     >
       {options.map(option => (
-        <option key={option.value} value={option.value}>
+        <option 
+          key={option.value} 
+          value={option.value}
+          selected={defaultValue === option.value}
+        >
           {option.label}
         </option>
       ))}

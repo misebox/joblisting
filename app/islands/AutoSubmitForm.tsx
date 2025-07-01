@@ -1,4 +1,3 @@
-import { useState } from 'hono/jsx';
 import SelectBox from '@/islands/SelectBox';
 import SearchInput from '@/islands/SearchInput';
 
@@ -21,36 +20,11 @@ const starredOptions = [
 ];
 
 export default function AutoSubmitForm({ status = 'all', starred = '', search = '' }: Props) {
-  // 制御されたコンポーネントとして状態を管理
-  const [currentStatus, setCurrentStatus] = useState(status);
-  const [currentStarred, setCurrentStarred] = useState(starred);
-  const [currentSearch, setCurrentSearch] = useState(search);
-
-  const handleStatusChange = (event: Event) => {
-    const newValue = (event.target as HTMLSelectElement).value;
-    setCurrentStatus(newValue);
-    submitForm();
-  };
-
-  const handleStarredChange = (event: Event) => {
-    const newValue = (event.target as HTMLSelectElement).value;
-    setCurrentStarred(newValue);
-    submitForm();
-  };
-
-  const handleSearchChange = (event: Event) => {
-    const newValue = (event.target as HTMLInputElement).value;
-    setCurrentSearch(newValue);
-    submitForm();
-  };
-
-  const submitForm = () => {
-    setTimeout(() => {
-      const form = document.querySelector('form');
-      if (form) {
-        form.submit();
-      }
-    }, 100);
+  const handleChange = (event: Event) => {
+    const form = (event.target as HTMLSelectElement).form;
+    if (form) {
+      form.submit();
+    }
   };
 
   return (
@@ -59,30 +33,31 @@ export default function AutoSubmitForm({ status = 'all', starred = '', search = 
         <div className="filter-group">
           <label htmlFor="status">ステータス</label>
           <SelectBox 
+            key={`status-${status}`}
             name="status"
             id="status"
-            value={currentStatus}
+            defaultValue={status}
             options={statusOptions}
-            onChange={handleStatusChange}
+            onChange={handleChange}
           />
         </div>
         
         <div className="filter-group">
           <label htmlFor="starred">スター</label>
           <SelectBox 
+            key={`starred-${starred}`}
             name="starred"
             id="starred"
-            value={currentStarred}
+            defaultValue={starred}
             options={starredOptions}
-            onChange={handleStarredChange}
+            onChange={handleChange}
           />
         </div>
         
         <div className="filter-group">
           <label htmlFor="search">検索</label>
           <SearchInput 
-            initialValue={currentSearch} 
-            onChange={handleSearchChange} 
+            initialValue={search} 
           />
         </div>
         
