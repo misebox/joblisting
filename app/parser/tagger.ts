@@ -114,7 +114,7 @@ export class TechTagger {
   }
 
   async tagAllEntries(): Promise<void> {
-    const allEntries = await db.select().from(db.entries);
+    const allEntries = await db.select().from(entries);
     
     console.log(`Tagging ${allEntries.length} entries...`);
     
