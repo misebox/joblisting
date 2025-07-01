@@ -166,28 +166,6 @@ export default function AutoSubmitForm({ status = 'all', starred = '', search = 
           />
         </FormField>
         
-        <FormField label="並び順" htmlFor="sort">
-          <SelectBox 
-            key={`sort-${sort}`}
-            name="sort"
-            id="sort"
-            defaultValue={sort}
-            options={sortOptions}
-            onChange={handleChange}
-          />
-        </FormField>
-        
-        <FormField label="順序" htmlFor="order">
-          <SelectBox 
-            key={`order-${order}`}
-            name="order"
-            id="order"
-            defaultValue={order}
-            options={orderOptions}
-            onChange={handleChange}
-          />
-        </FormField>
-        
         <div className="filter-actions">
           <button type="submit">検索</button>
           <button type="button" onClick={handleClear} className="clear-button">
