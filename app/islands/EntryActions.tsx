@@ -56,7 +56,7 @@ export default function EntryActions({
             name="status" 
             id="status" 
             value={status}
-            onChange={(e) => setStatus(e.target.value)}
+            onChange={(e) => setStatus((e.target as HTMLSelectElement).value)}
           >
             <option value="new">新規</option>
             <option value="reviewed">確認済み</option>
@@ -71,7 +71,7 @@ export default function EntryActions({
             id="comment" 
             placeholder="メモやコメントを入力"
             value={comment}
-            onChange={(e) => setComment(e.target.value)}
+            onChange={(e) => setComment((e.target as HTMLTextAreaElement).value)}
           />
         </div>
         
@@ -80,7 +80,7 @@ export default function EntryActions({
             type="checkbox" 
             name="starred" 
             checked={starred}
-            onChange={(e) => setStarred(e.target.checked)}
+            onChange={(e) => setStarred((e.target as HTMLInputElement).checked)}
           />
           <span>スターを付ける</span>
         </label>
