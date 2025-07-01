@@ -85,11 +85,16 @@ export class JobListingParser {
   }
 
   parse(content: string): ParseResult {
-    const blocks = content.split(BLOCK_SEPARATOR).filter(block => block.trim());
+    const blocks = content.split(BLOCK_SEPARATOR);
     const entries: ParsedEntry[] = [];
     const errors: ParseError[] = [];
 
     blocks.forEach((block, index) => {
+      // Skip completely empty blocks (common at start/end)
+      if (!block.trim()) {
+        return;
+      }
+      
       const result = this.parseBlock(block, index + 1);
       if ('type' in result) {
         errors.push(result);
