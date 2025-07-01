@@ -30,38 +30,36 @@ export default createRoute(async (c) => {
   }
 
   // タグフィルタリング
-  if (selectedTags) {
-    const tagNames = selectedTags.split(',').filter(tag => tag.trim() !== '');
-    if (tagNames.length > 0) {
-      // 選択されたタグ名からタグIDを取得
-      const selectedTagRecords = await db
-        .select()
-        .from(tags)
-        .where(inArray(tags.name, tagNames));
+  const tagNames = selectedTags ? selectedTags.split(',').filter(tag => tag.trim() !== '') : [];
+  if (tagNames.length > 0) {
+    // 選択されたタグ名からタグIDを取得
+    const selectedTagRecords = await db
+      .select()
+      .from(tags)
+      .where(inArray(tags.name, tagNames));
+    
+    const selectedTagIds = selectedTagRecords.map(tag => tag.id);
+    
+    if (selectedTagIds.length > 0) {
+      // AND条件：すべてのタグを持つエントリのIDを取得
+      // GROUP BYとHAVINGを使って効率的に実装
+      const entriesWithAllTags = await db
+        .select({ 
+          entryId: entryTags.entryId,
+          tagCount: count(entryTags.tagId).as('tag_count')
+        })
+        .from(entryTags)
+        .where(inArray(entryTags.tagId, selectedTagIds))
+        .groupBy(entryTags.entryId)
+        .having(sql`COUNT(DISTINCT ${entryTags.tagId}) = ${selectedTagIds.length}`);
       
-      const selectedTagIds = selectedTagRecords.map(tag => tag.id);
+      const entryIds = entriesWithAllTags.map(et => et.entryId);
       
-      if (selectedTagIds.length > 0) {
-        // AND条件：すべてのタグを持つエントリのIDを取得
-        // GROUP BYとHAVINGを使って効率的に実装
-        const entriesWithAllTags = await db
-          .select({ 
-            entryId: entryTags.entryId,
-            tagCount: count(entryTags.tagId).as('tag_count')
-          })
-          .from(entryTags)
-          .where(inArray(entryTags.tagId, selectedTagIds))
-          .groupBy(entryTags.entryId)
-          .having(sql`COUNT(DISTINCT ${entryTags.tagId}) = ${selectedTagIds.length}`);
-        
-        const entryIds = entriesWithAllTags.map(et => et.entryId);
-        
-        if (entryIds.length > 0) {
-          conditions.push(inArray(entries.id, entryIds));
-        } else {
-          // 該当するエントリがない場合は結果を空にする
-          conditions.push(eq(entries.id, -1));
-        }
+      if (entryIds.length > 0) {
+        conditions.push(inArray(entries.id, entryIds));
+      } else {
+        // 該当するエントリがない場合は結果を空にする
+        conditions.push(eq(entries.id, -1));
       }
     }
   }

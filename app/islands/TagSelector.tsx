@@ -73,7 +73,7 @@ export default function TagSelector({ availableTags, selectedTags = [], onChange
         const existingTagInputs = form.querySelectorAll('input[name="tags"]');
         existingTagInputs.forEach(input => input.remove());
         
-        // フォーム送信
+        // タグをクリアした状態でフォーム送信（tagsパラメータなし）
         form.submit();
       }
     }, 50);
