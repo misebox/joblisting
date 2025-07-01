@@ -3,15 +3,13 @@ import type { Tag } from '@/db';
 
 interface Props {
   availableTags: Tag[];
-  selectedTags?: string | string[];
+  selectedTags?: string[];
   onChange?: (selectedTags: string[]) => void;
   onTagsChange?: (tags: string[]) => void;
 }
 
 export default function TagSelector({ availableTags, selectedTags = [], onChange, onTagsChange }: Props) {
-  const selectedTagNames = typeof selectedTags === 'string' 
-    ? selectedTags.split(',').filter(tag => tag.trim() !== '') 
-    : Array.isArray(selectedTags) ? selectedTags : [];
+  const selectedTagNames = selectedTags?.filter(tag => tag.trim() !== '');
   const [selected, setSelected] = useState(selectedTagNames);
   const [isOpen, setIsOpen] = useState(false);
 
