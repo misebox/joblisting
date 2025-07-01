@@ -58,9 +58,43 @@ export default function AutoSubmitForm({ status = 'all', starred = '', search = 
         starred: formData.get('starred') as string || '',
         search: formData.get('search') as string || ''
       };
-      saveSearchConditions(conditions);
+      
+      // 意味のある検索条件がある場合のみlocalStorageに保存
+      if (conditions.status !== 'all' || conditions.starred !== '' || conditions.search !== '') {
+        saveSearchConditions(conditions);
+      }
       form.submit();
     }
+  };
+
+  const handleSubmit = (event: Event) => {
+    event.preventDefault();
+    const form = event.target as HTMLFormElement;
+    const formData = new FormData(form);
+    
+    // デバッグ用：FormDataの内容を確認
+    console.log('FormData contents:');
+    for (const [key, value] of formData.entries()) {
+      console.log(`${key}: "${value}"`);
+    }
+    
+    const conditions = {
+      status: formData.get('status') as string || 'all',
+      starred: formData.get('starred') as string || '',
+      search: formData.get('search') as string || ''
+    };
+    
+    // 意味のある検索条件がある場合のみlocalStorageに保存
+    if (conditions.status !== 'all' || conditions.starred !== '' || conditions.search !== '') {
+      saveSearchConditions(conditions);
+    }
+    
+    // localStorage保存後に手動でページ遷移
+    const params = new URLSearchParams();
+    if (conditions.status !== 'all') params.set('status', conditions.status);
+    if (conditions.starred) params.set('starred', conditions.starred);
+    if (conditions.search) params.set('search', conditions.search);
+    window.location.href = `/?${params.toString()}`;
   };
 
   const handleClear = () => {
@@ -70,7 +104,7 @@ export default function AutoSubmitForm({ status = 'all', starred = '', search = 
 
   return (
     <div className="filters">
-      <form method="get" action="/">
+      <form method="get" action="/" onSubmit={handleSubmit}>
         <div className="filter-group">
           <label htmlFor="status">ステータス</label>
           <SelectBox 
@@ -98,7 +132,7 @@ export default function AutoSubmitForm({ status = 'all', starred = '', search = 
         <div className="filter-group">
           <label htmlFor="search">検索</label>
           <SearchInput 
-            initialValue={search} 
+            defaultValue={search}
           />
         </div>
         

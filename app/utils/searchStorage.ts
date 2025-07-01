@@ -15,6 +15,7 @@ export const defaultConditions: SearchConditions = {
 export function saveSearchConditions(conditions: SearchConditions): void {
   if (typeof window !== 'undefined') {
     try {
+      console.log('Saving search conditions:', conditions);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(conditions));
     } catch (error) {
       console.warn('Failed to save search conditions:', error);

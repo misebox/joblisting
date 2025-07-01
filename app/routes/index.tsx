@@ -1,6 +1,6 @@
 import { createRoute } from 'honox/factory';
 import { db, entries, tags, entryTags } from '@/db';
-import { eq, desc, or, like } from 'drizzle-orm';
+import { eq, desc, or, like, and } from 'drizzle-orm';
 import EntryList from '@/components/EntryList';
 import AutoSubmitForm from '@/islands/AutoSubmitForm';
 
@@ -33,7 +33,7 @@ export default createRoute(async (c) => {
   const allEntries = await db
     .select()
     .from(entries)
-    .where(conditions.length > 0 ? (conditions.length === 1 ? conditions[0] : or(...conditions)) : undefined)
+    .where(conditions.length > 0 ? (conditions.length === 1 ? conditions[0] : and(...conditions)) : undefined)
     .orderBy(desc(entries.updatedAt));
 
   // Get tags for each entry
