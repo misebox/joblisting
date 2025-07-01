@@ -65,7 +65,7 @@ export default function TagSelector({ availableTags, selectedTags = [], onChange
     setSelected([]);
     onChange?.([]);
     
-    // フォームを自動送信
+    // すべてクリア時は即座にフォーム送信
     setTimeout(() => {
       const form = document.querySelector('form[method="get"]') as HTMLFormElement;
       if (form) {
@@ -105,7 +105,32 @@ export default function TagSelector({ availableTags, selectedTags = [], onChange
             {tagName}
             <button 
               type="button" 
-              onClick={() => handleToggle(tagName)}
+              onClick={() => {
+                const newSelected = selected.filter(t => t !== tagName);
+                setSelected(newSelected);
+                onChange?.(newSelected);
+                
+                // 個別削除時は即座にフォーム送信
+                setTimeout(() => {
+                  const form = document.querySelector('form[method="get"]') as HTMLFormElement;
+                  if (form) {
+                    // 既存の隠しタグinputを削除
+                    const existingTagInputs = form.querySelectorAll('input[name="tags"]');
+                    existingTagInputs.forEach(input => input.remove());
+                    
+                    // カンマ区切りで1つのinputとして追加
+                    if (newSelected.length > 0) {
+                      const input = document.createElement('input');
+                      input.type = 'hidden';
+                      input.name = 'tags';
+                      input.value = newSelected.join(',');
+                      form.appendChild(input);
+                    }
+                    
+                    form.submit();
+                  }
+                }, 50);
+              }}
               className="remove-tag"
             >
               ×
