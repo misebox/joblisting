@@ -18,7 +18,6 @@
     /* Modules */
     "module": "ESNext",                                /* Specify what module code is generated. */
     "moduleResolution": "bundler",
-    "rootDir": "./src",
     "baseUrl": "./",
     "paths": {
       "@/*": ["src/*"]

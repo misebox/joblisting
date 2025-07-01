@@ -1,7 +1,7 @@
 # Development stage
 FROM node:20-alpine AS development
 
-WORKDIR /app
+WORKDIR /work
 
 # Copy package files
 COPY package*.json ./
@@ -21,7 +21,7 @@ CMD ["npm", "run", "dev"]
 # Builder stage
 FROM node:20-alpine AS builder
 
-WORKDIR /app
+WORKDIR /work
 
 # Copy package files
 COPY package*.json ./
@@ -39,7 +39,7 @@ RUN npm run build
 # Production stage
 FROM node:20-alpine AS production
 
-WORKDIR /app
+WORKDIR /work
 
 # Copy package files
 COPY package*.json ./
@@ -48,7 +48,7 @@ COPY package*.json ./
 RUN npm ci --production
 
 # Copy built application
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /work/dist ./dist
 
 # Expose port
 EXPOSE 8787

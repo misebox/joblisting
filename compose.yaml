@@ -5,9 +5,6 @@ services:
       target: development
     ports:
       - "8787:8787"
-    volumes:
-      - .:/app
-      - /app/node_modules
     environment:
       - DATABASE_URL=postgres://postgres:password@db:5432/postgres
       - NODE_ENV=development
@@ -20,7 +17,7 @@ services:
           path: ./
           ignore:
             - node_modules/
-          target: /app
+          target: /work
         - action: rebuild
           path: ./package.json
 
