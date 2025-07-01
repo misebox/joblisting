@@ -1,4 +1,4 @@
-import { useState } from 'hono/jsx';
+import { useState, useEffect } from 'hono/jsx';
 import type { Tag } from '@/db';
 
 interface Props {
@@ -15,6 +15,26 @@ export default function TagSelector({ availableTags, selectedTags = [], onChange
   const [selected, setSelected] = useState(selectedTagNames);
   const [isOpen, setIsOpen] = useState(false);
 
+  // パネル外クリックで閉じる
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (isOpen && !target.closest('.tag-selector')) {
+        // パネルを閉じる時にフォーム送信
+        setTimeout(() => {
+          const form = document.querySelector('form[method="get"]') as HTMLFormElement;
+          if (form) {
+            form.submit();
+          }
+        }, 50);
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [isOpen]);
+
   const handleToggle = (tagName: string) => {
     const newSelected = selected.includes(tagName)
       ? selected.filter(t => t !== tagName)
@@ -23,27 +43,22 @@ export default function TagSelector({ availableTags, selectedTags = [], onChange
     setSelected(newSelected);
     onChange?.(newSelected);
     
-    // フォームを自動送信
-    setTimeout(() => {
-      const form = document.querySelector('form[method="get"]') as HTMLFormElement;
-      if (form) {
-        // 既存の隠しタグinputを削除
-        const existingTagInputs = form.querySelectorAll('input[name="tags"]');
-        existingTagInputs.forEach(input => input.remove());
-        
-        // カンマ区切りで1つのinputとして追加
-        if (newSelected.length > 0) {
-          const input = document.createElement('input');
-          input.type = 'hidden';
-          input.name = 'tags';
-          input.value = newSelected.join(',');
-          form.appendChild(input);
-        }
-        
-        // フォーム送信
-        form.submit();
+    // フォーム上の隠しinputを更新（送信はしない）
+    const form = document.querySelector('form[method="get"]') as HTMLFormElement;
+    if (form) {
+      // 既存の隠しタグinputを削除
+      const existingTagInputs = form.querySelectorAll('input[name="tags"]');
+      existingTagInputs.forEach(input => input.remove());
+      
+      // カンマ区切りで1つのinputとして追加
+      if (newSelected.length > 0) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'tags';
+        input.value = newSelected.join(',');
+        form.appendChild(input);
       }
-    }, 50);
+    }
   };
 
   const handleClear = () => {
@@ -108,7 +123,18 @@ export default function TagSelector({ availableTags, selectedTags = [], onChange
       <div className="tag-dropdown">
         <button 
           type="button" 
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={() => {
+            if (isOpen) {
+              // パネルを閉じる時にフォーム送信
+              setTimeout(() => {
+                const form = document.querySelector('form[method="get"]') as HTMLFormElement;
+                if (form) {
+                  form.submit();
+                }
+              }, 50);
+            }
+            setIsOpen(!isOpen);
+          }}
           className="dropdown-toggle"
         >
           タグを選択 ({selected.length})

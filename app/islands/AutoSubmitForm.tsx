@@ -173,16 +173,16 @@ export default function AutoSubmitForm({ status = 'all', starred = '', search = 
           />
         </FormField>
         
-        <FormField label="検索" htmlFor="search">
-          <SearchInput 
-            defaultValue={search}
-          />
-        </FormField>
-        
         <FormField label="タグ">
           <TagSelector 
             availableTags={availableTags}
             selectedTags={selectedTags}
+          />
+        </FormField>
+        
+        <FormField label="検索" htmlFor="search">
+          <SearchInput 
+            defaultValue={search}
           />
         </FormField>
         
