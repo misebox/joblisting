@@ -33,7 +33,7 @@ ECサイトのバックエンド開発を行います。
 ・MySQL 8.0
 ・AWS`,
     expected: {
-      title: 'Webアプリケーション開発',
+      title: '案件1：Webアプリケーション開発',
       company: '株式会社テスト',
       distribution: '直請け',
       price: '80万円',
@@ -58,7 +58,7 @@ ECサイトのバックエンド開発を行います。
 ・React 18
 ・TypeScript 4.5`,
     expected: {
-      title: 'React開発',
+      title: '案件2：React開発',
       company: 'Tech Company',
       price: '75万円'
     }
@@ -72,7 +72,7 @@ ECサイトのバックエンド開発を行います。
 ＜概要＞
 フルスタック開発案件`,
     expected: {
-      title: 'フルスタック開発',
+      title: '案件１０：フルスタック開発',
       company: 'フルワイド株式会社',
       price: '９０万円'
     }
@@ -84,7 +84,7 @@ ECサイトのバックエンド開発を行います。
 ＜概要＞
 最小限の案件情報`,
     expected: {
-      title: 'シンプル案件'
+      title: '案件99：シンプル案件'
     }
   },
   {
@@ -100,7 +100,7 @@ ECサイトのバックエンド開発を行います。
 ・Java（Spring Boot）
 ・AWS（EC2/RDS）`,
     expected: {
-      title: '特殊文字テスト'
+      title: '案件5：特殊文字テスト'
     }
   },
   {
@@ -122,38 +122,44 @@ ECサイトのバックエンド開発を行います。
 ・AWS経験（EC2, RDS等）
 ・Docker/Kubernetes`,
     expected: {
-      title: '複雑な構造'
+      title: '案件6：複雑な構造'
+    }
+  },
+  {
+    name: 'Job listing with empty first lines',
+    input: `
+
+会社情報システム開発
+会社：テックカンパニー
+単価：85万円
+
+＜概要＞
+最初に空行がある案件`,
+    expected: {
+      title: '会社情報システム開発',
+      company: 'テックカンパニー',
+      price: '85万円'
+    }
+  },
+  {
+    name: 'First line as title without pattern',
+    input: `フリーランス向けPHP案件
+会社：Web制作会社
+単価：65万円
+期間：3ヶ月
+
+＜概要＞
+レガシーシステムの改修`,
+    expected: {
+      title: 'フリーランス向けPHP案件',
+      company: 'Web制作会社',
+      price: '65万円',
+      period: '3ヶ月'
     }
   }
 ];
 
-export const errorTestCases = [
-  {
-    name: 'Missing title',
-    input: `会社：株式会社テスト
-単価：80万円
-
-＜概要＞
-タイトルのない案件`,
-    expectedError: 'MissingTitleError'
-  },
-  {
-    name: 'Block with content but no title pattern',
-    input: `会社：株式会社テスト
-単価：80万円
-期間：6ヶ月
-
-＜概要＞
-タイトルパターンが間違っている案件`,
-    expectedError: 'MissingTitleError'
-  },
-  {
-    name: 'Malformed title',
-    input: `案件：タイトルなし番号
-会社：テスト会社`,
-    expectedError: 'MissingTitleError'
-  }
-];
+export const errorTestCases = [];  // No error cases with the new parser logic since any non-empty line can be a title
 
 export const multiBlockTestCase = {
   name: 'Multiple job listings',
@@ -177,5 +183,6 @@ export const multiBlockTestCase = {
 
 案件3：第三案件
 会社：会社C`,
-  expectedCount: 3
+  expectedCount: 3,
+  expectedTitles: ['案件1：第一案件', '案件2：第二案件', '案件3：第三案件']
 };

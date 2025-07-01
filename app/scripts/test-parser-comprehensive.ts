@@ -88,7 +88,20 @@ function runTests() {
     
     if (result.entries.length === multiBlockTestCase.expectedCount) {
       console.log(`✅ ${multiBlockTestCase.name}: Parsed ${result.entries.length} entries`);
-      passed++;
+      
+      // Check titles
+      const actualTitles = result.entries.map(e => e.title);
+      const titlesMatch = JSON.stringify(actualTitles) === JSON.stringify(multiBlockTestCase.expectedTitles);
+      
+      if (titlesMatch) {
+        console.log(`✅ ${multiBlockTestCase.name}: All titles match expected values`);
+        passed++;
+      } else {
+        console.log(`❌ ${multiBlockTestCase.name}: Titles mismatch`);
+        console.log(`   Expected: ${JSON.stringify(multiBlockTestCase.expectedTitles)}`);
+        console.log(`   Actual: ${JSON.stringify(actualTitles)}`);
+        failed++;
+      }
     } else {
       console.log(`❌ ${multiBlockTestCase.name}: Expected ${multiBlockTestCase.expectedCount} entries, got ${result.entries.length}`);
       failed++;
