@@ -25,7 +25,7 @@ export const POST = createRoute(async (c) => {
     const parser = new JobListingParser();
     const parsed = parser.parse(text);
     
-    if (!parsed.success) {
+    if (parsed.entries.length === 0 && parsed.errors.length > 0) {
       return c.json({ 
         success: false, 
         error: 'Failed to parse file', 

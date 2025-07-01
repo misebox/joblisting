@@ -4,9 +4,7 @@ async function testParse() {
   const parser = new JobListingParser();
   
   // Test with the actual file
-  console.log('Testing parser with olive_listings_20250630.txt...\n');
-  
-  const result = await parser.parseFile('./olive_listings_20250630.txt');
+  const result = await parser.parseFile('./listings/olive_listings_20250630.txt');
   
   console.log(`✅ Successfully parsed ${result.entries.length} entries`);
   console.log(`❌ Parse errors: ${result.errors.length}`);
