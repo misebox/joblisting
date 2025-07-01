@@ -5,10 +5,10 @@ interface Props {
   availableTags: Tag[];
   selectedTags?: string | string[];
   onChange?: (selectedTags: string[]) => void;
-  onFormSubmit?: () => void;
+  onTagsChange?: (tags: string[]) => void;
 }
 
-export default function TagSelector({ availableTags, selectedTags = [], onChange, onFormSubmit }: Props) {
+export default function TagSelector({ availableTags, selectedTags = [], onChange, onTagsChange }: Props) {
   const selectedTagNames = typeof selectedTags === 'string' 
     ? selectedTags.split(',').filter(tag => tag.trim() !== '') 
     : Array.isArray(selectedTags) ? selectedTags : [];
@@ -20,20 +20,15 @@ export default function TagSelector({ availableTags, selectedTags = [], onChange
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Element;
       if (isOpen && !target.closest('.tag-selector')) {
-        // パネルを閉じる時にフォーム送信
-        setTimeout(() => {
-          const form = document.querySelector('form[method="get"]') as HTMLFormElement;
-          if (form) {
-            form.submit();
-          }
-        }, 50);
+        // パネルを閉じる時に検索実行
+        onTagsChange?.(selected);
         setIsOpen(false);
       }
     };
 
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
-  }, [isOpen]);
+  }, [isOpen, selected, onTagsChange]);
 
   const handleToggle = (tagName: string) => {
     const newSelected = selected.includes(tagName)
@@ -65,18 +60,8 @@ export default function TagSelector({ availableTags, selectedTags = [], onChange
     setSelected([]);
     onChange?.([]);
     
-    // すべてクリア時は即座にフォーム送信
-    setTimeout(() => {
-      const form = document.querySelector('form[method="get"]') as HTMLFormElement;
-      if (form) {
-        // 既存の隠しタグinputを削除
-        const existingTagInputs = form.querySelectorAll('input[name="tags"]');
-        existingTagInputs.forEach(input => input.remove());
-        
-        // タグをクリアした状態でフォーム送信（tagsパラメータなし）
-        form.submit();
-      }
-    }, 50);
+    // すべてクリア時は即座に検索実行
+    onTagsChange?.([]);
   };
 
   const groupedTags = availableTags.reduce((acc, tag) => {
@@ -110,26 +95,8 @@ export default function TagSelector({ availableTags, selectedTags = [], onChange
                 setSelected(newSelected);
                 onChange?.(newSelected);
                 
-                // 個別削除時は即座にフォーム送信
-                setTimeout(() => {
-                  const form = document.querySelector('form[method="get"]') as HTMLFormElement;
-                  if (form) {
-                    // 既存の隠しタグinputを削除
-                    const existingTagInputs = form.querySelectorAll('input[name="tags"]');
-                    existingTagInputs.forEach(input => input.remove());
-                    
-                    // カンマ区切りで1つのinputとして追加
-                    if (newSelected.length > 0) {
-                      const input = document.createElement('input');
-                      input.type = 'hidden';
-                      input.name = 'tags';
-                      input.value = newSelected.join(',');
-                      form.appendChild(input);
-                    }
-                    
-                    form.submit();
-                  }
-                }, 50);
+                // 個別削除時は即座に検索実行
+                onTagsChange?.(newSelected);
               }}
               className="remove-tag"
             >
@@ -150,13 +117,8 @@ export default function TagSelector({ availableTags, selectedTags = [], onChange
           type="button" 
           onClick={() => {
             if (isOpen) {
-              // パネルを閉じる時にフォーム送信
-              setTimeout(() => {
-                const form = document.querySelector('form[method="get"]') as HTMLFormElement;
-                if (form) {
-                  form.submit();
-                }
-              }, 50);
+              // パネルを閉じる時に検索実行
+              onTagsChange?.(selected);
             }
             setIsOpen(!isOpen);
           }}

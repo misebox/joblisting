@@ -3,6 +3,7 @@ import SortableHeader from '@/islands/SortableHeader';
 import StatusBadge from '@/components/StatusBadge';
 import TagList from '@/components/TagList';
 import { formatDate } from '@/utils/formatting';
+import { navigateWithUpdatedSort } from '@/utils/navigation';
 
 interface EntryWithTags extends Entry {
   tags?: Tag[];
@@ -16,19 +17,7 @@ interface Props {
 
 export default function EntryList({ entries, currentSort = 'updatedAt', currentOrder = 'desc' }: Props) {
   const handleSort = (column: string) => {
-    const params = new URLSearchParams(window.location.search);
-    
-    // If clicking on the same column, toggle order
-    if (params.get('sort') === column || (column === 'updatedAt' && !params.get('sort'))) {
-      const newOrder = params.get('order') === 'asc' ? 'desc' : 'asc';
-      params.set('order', newOrder);
-    } else {
-      // If clicking on a new column, set to desc
-      params.set('order', 'desc');
-    }
-    
-    params.set('sort', column);
-    window.location.href = `/?${params.toString()}`;
+    navigateWithUpdatedSort(column, currentSort, currentOrder);
   };
 
 

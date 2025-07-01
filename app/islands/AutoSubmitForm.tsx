@@ -5,6 +5,7 @@ import TagSelector from '@/islands/TagSelector';
 import FormField from '@/components/FormField';
 import type { Tag } from '@/db';
 import { saveSearchConditions, loadSearchConditions, clearSearchConditions, defaultConditions, SearchConditions } from '@/utils/searchStorage';
+import { navigateWithSearchConditions } from '@/utils/navigation';
 
 interface Props {
   status?: string;
@@ -55,20 +56,24 @@ export default function AutoSubmitForm({ status = 'all', starred = '', search = 
     tags: selectedTags ? selectedTags.split(',').filter(tag => tag.trim() !== '') : [],
   });
 
-  // 共通のページ遷移関数
+  // 共通のフォームからの条件抽出関数
+  const extractConditionsFromForm = (form: HTMLFormElement): SearchConditions => {
+    const formData = new FormData(form);
+    const tags = formData.getAll('tags') as string[];
+    return {
+      status: formData.get('status') as string || 'all',
+      starred: formData.get('starred') as string || '',
+      search: formData.get('search') as string || '',
+      sort: formData.get('sort') as string || 'updatedAt',
+      order: formData.get('order') as string || 'desc',
+      tags: tags
+    };
+  };
+
+  // 共通のページ遷移関数（localStorage保存も含む）
   const navigateWithParams = (conditions: SearchConditions) => {
-    const params = new URLSearchParams();
-    if (conditions.status !== 'all') params.set('status', conditions.status);
-    if (conditions.starred !== '') params.set('starred', conditions.starred);
-    if (conditions.search !== '') params.set('search', conditions.search);
-    if (conditions.sort !== 'updatedAt') params.set('sort', conditions.sort);
-    if (conditions.order !== 'desc') params.set('order', conditions.order);
-    if (conditions.tags && conditions.tags.length > 0) {
-      params.set('tags', conditions.tags.join(','));
-    }
-    
-    const queryString = params.toString();
-    window.location.href = queryString ? `/?${queryString}` : '/';
+    setCurrentConditions(conditions);
+    navigateWithSearchConditions(conditions);
   };
 
   // Load from localStorage on mount, but prefer URL params if they exist
@@ -80,7 +85,7 @@ export default function AutoSubmitForm({ status = 'all', starred = '', search = 
       setCurrentConditions(stored);
       // If we have stored conditions, navigate to them
       if (stored.status !== 'all' || stored.starred !== '' || stored.search !== '' || stored.sort !== 'updatedAt' || stored.order !== 'desc' || stored.tags.length > 0) {
-        navigateWithParams(stored);
+        navigateWithSearchConditions(stored);
       }
     } else {
       // Save URL params to localStorage
@@ -91,25 +96,8 @@ export default function AutoSubmitForm({ status = 'all', starred = '', search = 
   const handleChange = (event: Event) => {
     const form = (event.target as HTMLSelectElement).form;
     if (form) {
-      // Save to localStorage before submitting
-      const formData = new FormData(form);
-      const tags = formData.getAll('tags') as string[];
-      const conditions = {
-        status: formData.get('status') as string || 'all',
-        starred: formData.get('starred') as string || '',
-        search: formData.get('search') as string || '',
-        sort: formData.get('sort') as string || 'updatedAt',
-        order: formData.get('order') as string || 'desc',
-        tags: tags
-      };
-      
-      // 意味のある検索条件がある場合のみlocalStorageに保存
-      if (conditions.status !== 'all' || conditions.starred !== '' || conditions.search !== '' || conditions.sort !== 'updatedAt' || conditions.order !== 'desc' || conditions.tags.length > 0) {
-        saveSearchConditions(conditions);
-      }
-      
-      // 手動でページ遷移
       event.preventDefault();
+      const conditions = extractConditionsFromForm(form);
       navigateWithParams(conditions);
     }
   };
@@ -117,33 +105,11 @@ export default function AutoSubmitForm({ status = 'all', starred = '', search = 
   const handleSubmit = (event: Event) => {
     event.preventDefault();
     const form = event.target as HTMLFormElement;
-    const formData = new FormData(form);
-    
-    // デバッグ用：FormDataの内容を確認
-    console.log('FormData contents:');
-    for (const [key, value] of formData.entries()) {
-      console.log(`${key}: "${value}"`);
-    }
-    
-    const tags = formData.getAll('tags') as string[];
-    const conditions = {
-      status: formData.get('status') as string || 'all',
-      starred: formData.get('starred') as string || '',
-      search: formData.get('search') as string || '',
-      sort: formData.get('sort') as string || 'updatedAt',
-      order: formData.get('order') as string || 'desc',
-      tags: tags
-    };
-    
-    // 意味のある検索条件がある場合のみlocalStorageに保存
-    saveSearchConditions(conditions);
-    
-    // localStorage保存後に手動でページ遷移
+    const conditions = extractConditionsFromForm(form);
     navigateWithParams(conditions);
   };
 
   const handleClear = () => {
-    clearSearchConditions();
     navigateWithParams(defaultConditions);
   };
 
@@ -176,6 +142,10 @@ export default function AutoSubmitForm({ status = 'all', starred = '', search = 
           <TagSelector 
             availableTags={availableTags}
             selectedTags={selectedTags}
+            onTagsChange={(tags) => {
+              const updatedConditions = { ...currentConditions, tags };
+              navigateWithParams(updatedConditions);
+            }}
           />
         </FormField>
         
