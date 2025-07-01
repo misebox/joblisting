@@ -1,4 +1,5 @@
 import type { Entry, Tag } from '@/db';
+import SortableHeader from '@/islands/SortableHeader';
 
 interface EntryWithTags extends Entry {
   tags?: Tag[];
@@ -6,9 +7,26 @@ interface EntryWithTags extends Entry {
 
 interface Props {
   entries: EntryWithTags[];
+  currentSort?: string;
+  currentOrder?: string;
 }
 
-export default function EntryList({ entries }: Props) {
+export default function EntryList({ entries, currentSort = 'updatedAt', currentOrder = 'desc' }: Props) {
+  const handleSort = (column: string) => {
+    const params = new URLSearchParams(window.location.search);
+    
+    // If clicking on the same column, toggle order
+    if (params.get('sort') === column || (column === 'updatedAt' && !params.get('sort'))) {
+      const newOrder = params.get('order') === 'asc' ? 'desc' : 'asc';
+      params.set('order', newOrder);
+    } else {
+      // If clicking on a new column, set to desc
+      params.set('order', 'desc');
+    }
+    
+    params.set('sort', column);
+    window.location.href = `/?${params.toString()}`;
+  };
   const getStatusLabel = (status: string) => {
     const labels: Record<string, string> = {
       new: '新規',
@@ -39,16 +57,16 @@ export default function EntryList({ entries }: Props) {
       <table className="dense-table">
         <thead>
           <tr>
-            <th>案件</th>
-            <th>会社</th>
-            <th>単価</th>
-            <th>場所</th>
-            <th>期間</th>
-            <th>概要</th>
-            <th>必須スキル</th>
+            <SortableHeader column="title" label="案件" currentSort={currentSort} currentOrder={currentOrder} onSort={handleSort} />
+            <SortableHeader column="company" label="会社" currentSort={currentSort} currentOrder={currentOrder} onSort={handleSort} />
+            <SortableHeader column="price" label="単価" currentSort={currentSort} currentOrder={currentOrder} onSort={handleSort} />
+            <SortableHeader column="location" label="場所" currentSort={currentSort} currentOrder={currentOrder} onSort={handleSort} />
+            <SortableHeader column="period" label="期間" currentSort={currentSort} currentOrder={currentOrder} onSort={handleSort} />
+            <SortableHeader column="description" label="概要" currentSort={currentSort} currentOrder={currentOrder} onSort={handleSort} />
+            <SortableHeader column="requirements" label="必須スキル" currentSort={currentSort} currentOrder={currentOrder} onSort={handleSort} />
             <th>タグ</th>
-            <th>状態</th>
-            <th>更新</th>
+            <SortableHeader column="status" label="状態" currentSort={currentSort} currentOrder={currentOrder} onSort={handleSort} />
+            <SortableHeader column="updatedAt" label="更新" currentSort={currentSort} currentOrder={currentOrder} onSort={handleSort} />
           </tr>
         </thead>
         <tbody>

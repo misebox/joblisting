@@ -89,6 +89,13 @@ th {
   font-weight: 600;
   color: #666;
 }
+th[onclick] {
+  position: relative;
+  transition: background-color 0.2s;
+}
+th[onclick]:hover {
+  background: #e9ecef;
+}
 tr:hover { background: #f8f9fa; }
 a {
   color: #3498db;

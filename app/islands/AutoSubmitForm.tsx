@@ -7,6 +7,8 @@ interface Props {
   status?: string;
   starred?: string;
   search?: string;
+  sort?: string;
+  order?: string;
 }
 
 const statusOptions = [
@@ -21,39 +23,59 @@ const starredOptions = [
   { value: 'true', label: 'スター付きのみ' }
 ];
 
-export default function AutoSubmitForm({ status = 'all', starred = '', search = '' }: Props) {
+const sortOptions = [
+  { value: 'updatedAt', label: '更新日時' },
+  { value: 'createdAt', label: '作成日時' },
+  { value: 'title', label: '案件名' },
+  { value: 'company', label: '会社名' },
+  { value: 'price', label: '単価' },
+  { value: 'location', label: '場所' },
+  { value: 'period', label: '期間' },
+  { value: 'description', label: '概要' },
+  { value: 'requirements', label: '必須スキル' },
+  { value: 'status', label: '状態' }
+];
+
+const orderOptions = [
+  { value: 'desc', label: '降順' },
+  { value: 'asc', label: '昇順' }
+];
+
+export default function AutoSubmitForm({ status = 'all', starred = '', search = '', sort = 'updatedAt', order = 'desc' }: Props) {
   const [currentConditions, setCurrentConditions] = useState({
     status,
     starred,
     search,
+    sort,
+    order,
   });
 
   // 共通のページ遷移関数
-  const navigateWithParams = (conditions: { status: string; starred: string; search: string }) => {
-    if (conditions.status === 'all' && conditions.starred === '' && conditions.search === '') {
-      window.location.href = '/';
-    } else {
-      const params = new URLSearchParams();
-      if (conditions.status !== 'all') params.set('status', conditions.status);
-      if (conditions.starred !== '') params.set('starred', conditions.starred);
-      if (conditions.search !== '') params.set('search', conditions.search);
-      window.location.href = `/?${params.toString()}`;
-    }
+  const navigateWithParams = (conditions: SearchConditions) => {
+    const params = new URLSearchParams();
+    if (conditions.status !== 'all') params.set('status', conditions.status);
+    if (conditions.starred !== '') params.set('starred', conditions.starred);
+    if (conditions.search !== '') params.set('search', conditions.search);
+    if (conditions.sort !== 'updatedAt') params.set('sort', conditions.sort);
+    if (conditions.order !== 'desc') params.set('order', conditions.order);
+    
+    const queryString = params.toString();
+    window.location.href = queryString ? `/?${queryString}` : '/';
   };
 
   // Load from localStorage on mount, but prefer URL params if they exist
   useEffect(() => {
-    const hasUrlParams = status !== 'all' || starred !== '' || search !== '';
+    const hasUrlParams = status !== 'all' || starred !== '' || search !== '' || sort !== 'updatedAt' || order !== 'desc';
     if (!hasUrlParams) {
       const stored = loadSearchConditions();
       setCurrentConditions(stored);
       // If we have stored conditions, navigate to them
-      if (stored.status !== 'all' || stored.starred !== '' || stored.search !== '') {
+      if (stored.status !== 'all' || stored.starred !== '' || stored.search !== '' || stored.sort !== 'updatedAt' || stored.order !== 'desc') {
         navigateWithParams(stored);
       }
     } else {
       // Save URL params to localStorage
-      saveSearchConditions({ status, starred, search });
+      saveSearchConditions({ status, starred, search, sort, order });
     }
   }, []);
 
@@ -65,11 +87,13 @@ export default function AutoSubmitForm({ status = 'all', starred = '', search = 
       const conditions = {
         status: formData.get('status') as string || 'all',
         starred: formData.get('starred') as string || '',
-        search: formData.get('search') as string || ''
+        search: formData.get('search') as string || '',
+        sort: formData.get('sort') as string || 'updatedAt',
+        order: formData.get('order') as string || 'desc'
       };
       
       // 意味のある検索条件がある場合のみlocalStorageに保存
-      if (conditions.status !== 'all' || conditions.starred !== '' || conditions.search !== '') {
+      if (conditions.status !== 'all' || conditions.starred !== '' || conditions.search !== '' || conditions.sort !== 'updatedAt' || conditions.order !== 'desc') {
         saveSearchConditions(conditions);
       }
       
@@ -93,7 +117,9 @@ export default function AutoSubmitForm({ status = 'all', starred = '', search = 
     const conditions = {
       status: formData.get('status') as string || 'all',
       starred: formData.get('starred') as string || '',
-      search: formData.get('search') as string || ''
+      search: formData.get('search') as string || '',
+      sort: formData.get('sort') as string || 'updatedAt',
+      order: formData.get('order') as string || 'desc'
     };
     
     // 意味のある検索条件がある場合のみlocalStorageに保存
@@ -139,6 +165,30 @@ export default function AutoSubmitForm({ status = 'all', starred = '', search = 
           <label htmlFor="search">検索</label>
           <SearchInput 
             defaultValue={search}
+          />
+        </div>
+        
+        <div className="filter-group">
+          <label htmlFor="sort">並び順</label>
+          <SelectBox 
+            key={`sort-${sort}`}
+            name="sort"
+            id="sort"
+            defaultValue={sort}
+            options={sortOptions}
+            onChange={handleChange}
+          />
+        </div>
+        
+        <div className="filter-group">
+          <label htmlFor="order">順序</label>
+          <SelectBox 
+            key={`order-${order}`}
+            name="order"
+            id="order"
+            defaultValue={order}
+            options={orderOptions}
+            onChange={handleChange}
           />
         </div>
         

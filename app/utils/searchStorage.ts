@@ -2,6 +2,8 @@ export interface SearchConditions {
   status: string;
   starred: string;
   search: string;
+  sort: string;
+  order: string;
 }
 
 const STORAGE_KEY = 'jobparser_search_conditions';
@@ -9,7 +11,9 @@ const STORAGE_KEY = 'jobparser_search_conditions';
 export const defaultConditions: SearchConditions = {
   status: 'all',
   starred: '',
-  search: ''
+  search: '',
+  sort: 'updatedAt',
+  order: 'desc'
 };
 
 export function saveSearchConditions(conditions: SearchConditions): void {
