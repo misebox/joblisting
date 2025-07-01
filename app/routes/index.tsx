@@ -1,6 +1,6 @@
 import { createRoute } from 'honox/factory';
 import { db, entries, tags, entryTags } from '@/db';
-import { eq, desc, asc, or, ilike, and, inArray } from 'drizzle-orm';
+import { eq, desc, asc, or, ilike, and, inArray, count, sql } from 'drizzle-orm';
 import EntryList from '@/islands/EntryList';
 import AutoSubmitForm from '@/islands/AutoSubmitForm';
 
@@ -42,18 +42,24 @@ export default createRoute(async (c) => {
       const selectedTagIds = selectedTagRecords.map(tag => tag.id);
       
       if (selectedTagIds.length > 0) {
-        // 選択されたタグを持つエントリのIDを取得
-        const entryIdsWithTags = await db
-          .selectDistinct({ entryId: entryTags.entryId })
+        // AND条件：すべてのタグを持つエントリのIDを取得
+        // GROUP BYとHAVINGを使って効率的に実装
+        const entriesWithAllTags = await db
+          .select({ 
+            entryId: entryTags.entryId,
+            tagCount: count(entryTags.tagId).as('tag_count')
+          })
           .from(entryTags)
-          .where(inArray(entryTags.tagId, selectedTagIds));
+          .where(inArray(entryTags.tagId, selectedTagIds))
+          .groupBy(entryTags.entryId)
+          .having(sql`COUNT(DISTINCT ${entryTags.tagId}) = ${selectedTagIds.length}`);
         
-        const entryIds = entryIdsWithTags.map(et => et.entryId);
+        const entryIds = entriesWithAllTags.map(et => et.entryId);
         
         if (entryIds.length > 0) {
           conditions.push(inArray(entries.id, entryIds));
         } else {
-          // 該当するタグがない場合は結果を空にする
+          // 該当するエントリがない場合は結果を空にする
           conditions.push(eq(entries.id, -1));
         }
       }

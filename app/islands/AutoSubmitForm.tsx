@@ -53,6 +53,7 @@ export default function AutoSubmitForm({ status = 'all', starred = '', search = 
     search,
     sort,
     order,
+    tags: Array.isArray(selectedTags) ? selectedTags : selectedTags ? [selectedTags] : [],
   });
 
   // 共通のページ遷移関数
@@ -63,6 +64,9 @@ export default function AutoSubmitForm({ status = 'all', starred = '', search = 
     if (conditions.search !== '') params.set('search', conditions.search);
     if (conditions.sort !== 'updatedAt') params.set('sort', conditions.sort);
     if (conditions.order !== 'desc') params.set('order', conditions.order);
+    if (conditions.tags && conditions.tags.length > 0) {
+      conditions.tags.forEach(tag => params.append('tags', tag));
+    }
     
     const queryString = params.toString();
     window.location.href = queryString ? `/?${queryString}` : '/';
@@ -70,17 +74,18 @@ export default function AutoSubmitForm({ status = 'all', starred = '', search = 
 
   // Load from localStorage on mount, but prefer URL params if they exist
   useEffect(() => {
-    const hasUrlParams = status !== 'all' || starred !== '' || search !== '' || sort !== 'updatedAt' || order !== 'desc';
+    const currentTags = Array.isArray(selectedTags) ? selectedTags : selectedTags ? [selectedTags] : [];
+    const hasUrlParams = status !== 'all' || starred !== '' || search !== '' || sort !== 'updatedAt' || order !== 'desc' || currentTags.length > 0;
     if (!hasUrlParams) {
       const stored = loadSearchConditions();
       setCurrentConditions(stored);
       // If we have stored conditions, navigate to them
-      if (stored.status !== 'all' || stored.starred !== '' || stored.search !== '' || stored.sort !== 'updatedAt' || stored.order !== 'desc') {
+      if (stored.status !== 'all' || stored.starred !== '' || stored.search !== '' || stored.sort !== 'updatedAt' || stored.order !== 'desc' || stored.tags.length > 0) {
         navigateWithParams(stored);
       }
     } else {
       // Save URL params to localStorage
-      saveSearchConditions({ status, starred, search, sort, order });
+      saveSearchConditions({ status, starred, search, sort, order, tags: currentTags });
     }
   }, []);
 
@@ -89,16 +94,18 @@ export default function AutoSubmitForm({ status = 'all', starred = '', search = 
     if (form) {
       // Save to localStorage before submitting
       const formData = new FormData(form);
+      const tags = formData.getAll('tags') as string[];
       const conditions = {
         status: formData.get('status') as string || 'all',
         starred: formData.get('starred') as string || '',
         search: formData.get('search') as string || '',
         sort: formData.get('sort') as string || 'updatedAt',
-        order: formData.get('order') as string || 'desc'
+        order: formData.get('order') as string || 'desc',
+        tags: tags
       };
       
       // 意味のある検索条件がある場合のみlocalStorageに保存
-      if (conditions.status !== 'all' || conditions.starred !== '' || conditions.search !== '' || conditions.sort !== 'updatedAt' || conditions.order !== 'desc') {
+      if (conditions.status !== 'all' || conditions.starred !== '' || conditions.search !== '' || conditions.sort !== 'updatedAt' || conditions.order !== 'desc' || conditions.tags.length > 0) {
         saveSearchConditions(conditions);
       }
       
@@ -119,12 +126,14 @@ export default function AutoSubmitForm({ status = 'all', starred = '', search = 
       console.log(`${key}: "${value}"`);
     }
     
+    const tags = formData.getAll('tags') as string[];
     const conditions = {
       status: formData.get('status') as string || 'all',
       starred: formData.get('starred') as string || '',
       search: formData.get('search') as string || '',
       sort: formData.get('sort') as string || 'updatedAt',
-      order: formData.get('order') as string || 'desc'
+      order: formData.get('order') as string || 'desc',
+      tags: tags
     };
     
     // 意味のある検索条件がある場合のみlocalStorageに保存

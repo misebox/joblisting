@@ -5,9 +5,10 @@ interface Props {
   availableTags: Tag[];
   selectedTags?: string | string[];
   onChange?: (selectedTags: string[]) => void;
+  onFormSubmit?: () => void;
 }
 
-export default function TagSelector({ availableTags, selectedTags = [], onChange }: Props) {
+export default function TagSelector({ availableTags, selectedTags = [], onChange, onFormSubmit }: Props) {
   const selectedTagNames = Array.isArray(selectedTags) ? selectedTags : selectedTags ? [selectedTags] : [];
   const [selected, setSelected] = useState(selectedTagNames);
   const [isOpen, setIsOpen] = useState(false);
@@ -19,11 +20,46 @@ export default function TagSelector({ availableTags, selectedTags = [], onChange
     
     setSelected(newSelected);
     onChange?.(newSelected);
+    
+    // フォームを自動送信
+    setTimeout(() => {
+      const form = document.querySelector('form[method="get"]') as HTMLFormElement;
+      if (form) {
+        // 既存の隠しタグinputを削除
+        const existingTagInputs = form.querySelectorAll('input[name="tags"]');
+        existingTagInputs.forEach(input => input.remove());
+        
+        // 新しいタグinputを追加
+        newSelected.forEach(tag => {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = 'tags';
+          input.value = tag;
+          form.appendChild(input);
+        });
+        
+        // フォーム送信
+        form.submit();
+      }
+    }, 50);
   };
 
   const handleClear = () => {
     setSelected([]);
     onChange?.([]);
+    
+    // フォームを自動送信
+    setTimeout(() => {
+      const form = document.querySelector('form[method="get"]') as HTMLFormElement;
+      if (form) {
+        // 既存の隠しタグinputを削除
+        const existingTagInputs = form.querySelectorAll('input[name="tags"]');
+        existingTagInputs.forEach(input => input.remove());
+        
+        // フォーム送信
+        form.submit();
+      }
+    }, 50);
   };
 
   const groupedTags = availableTags.reduce((acc, tag) => {

@@ -4,6 +4,7 @@ export interface SearchConditions {
   search: string;
   sort: string;
   order: string;
+  tags: string[];
 }
 
 const STORAGE_KEY = 'jobparser_search_conditions';
@@ -13,7 +14,8 @@ export const defaultConditions: SearchConditions = {
   starred: '',
   search: '',
   sort: 'updatedAt',
-  order: 'desc'
+  order: 'desc',
+  tags: []
 };
 
 export function saveSearchConditions(conditions: SearchConditions): void {
