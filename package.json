@@ -12,6 +12,7 @@
     "parse": "tsx app/scripts/parse.ts",
     "test-parse": "tsx app/scripts/test-parse.ts",
     "tag": "tsx app/scripts/tag.ts",
+    "backfill-hashes": "tsx app/scripts/backfill-hashes.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

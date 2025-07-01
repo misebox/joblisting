@@ -18,6 +18,7 @@ export const entries = pgTable('entries', {
   requirements: text('requirements'),
   preferences: text('preferences'),
   techStack: text('tech_stack'),
+  hash: text('hash'), // 案件の一意性を判定するためのハッシュ値
   status: statusEnum('status').default('new').notNull(),
   comment: text('comment'),
   starred: boolean('starred').default(false).notNull(),
