@@ -72,7 +72,16 @@ export const POST = createRoute(async (c) => {
           });
         } else {
           // Tag the entry
-          const tags = tagger.extractTags(entry);
+          const entryText = [
+            entry.title,
+            entry.company,
+            entry.description,
+            entry.techStack,
+            entry.requirements,
+            entry.location,
+            entry.period
+          ].filter(Boolean).join(' ');
+          const tags = await tagger.extractTags(entryText);
           
           // Insert new entry into database
           const [inserted] = await db.insert(entries).values({
@@ -86,11 +95,30 @@ export const POST = createRoute(async (c) => {
           
           // Insert tags for this entry
           if (tags.length > 0) {
+            // tags
+            const { tags: tagTable } = await import('@/db');
+            const existingTags = await db
+                .select({ id: tagTable.id, name: tagTable.name })
+                .from(tagTable);
+            const exTagSet = new Set(existingTags.map(tag => tag.name));
+            const newTags = tags.filter(tag => !exTagSet.has(tag.name));
+            // Insert new tags if they don't exist
+            let insertedTags = [];
+            if (newTags.length > 0) {
+              insertedTags = await db.insert(tagTable).values(newTags.map(tag => ({
+                name: tag.name,
+                category: tag.category,
+              }))).returning({ id: tagTable.id, name: tagTable.name });
+              existingTags.push(...insertedTags);
+            }
+            // Create a map of tag names to IDs
+            const tagMap = new Map(existingTags.map(tag => [tag.name, tag.id]));
+            // entryTags
             const { entryTags } = await import('@/db');
             await db.insert(entryTags).values(
               tags.map(tag => ({
                 entryId: inserted.id,
-                tagId: tag.id
+                tagId: tagMap.get(tag.name)
               }))
             );
           }

@@ -69,8 +69,8 @@ export class TechTagger {
   }
 
   async extractTags(entryText: string): Promise<{ name: string; category: string }[]> {
+    // use Set
     const extractedTags: { name: string; category: string }[] = [];
-
     // Extract from all categories
     for (const [category, keywords] of Object.entries(TECH_KEYWORDS)) {
       const foundKeywords = this.extractKeywords(entryText, keywords);
