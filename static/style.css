@@ -515,6 +515,23 @@ input[type="checkbox"] {
   background: #f8d7da;
   color: #721c24;
 }
+.import-complete {
+  margin-top: 15px;
+  text-align: center;
+}
+.complete-button {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.complete-button:hover {
+  background: #218838;
+}
 @media (max-width: 768px) {
   .filters form {
     flex-direction: column;

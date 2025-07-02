@@ -31,8 +31,7 @@ export default function ImportManager() {
       onProgress(file.name, result.results);
     }
 
-    // Refresh the page to show new entries after all files are processed
-    window.location.reload();
+    // Don't auto-close dialog or refresh page - let user review results
   };
 
   return (

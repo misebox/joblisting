@@ -32,6 +32,7 @@ export default function ImportDialog({ isOpen, onClose, onImport }: Props) {
   if (!isOpen) return null;
 
   const handleFileSelect = async (files: File[]) => {
+    console.log('Selected files:', files);
     const txtFiles = files.filter(file => file.name.endsWith('.txt'));
     
     if (txtFiles.length === 0) {
@@ -90,10 +91,17 @@ export default function ImportDialog({ isOpen, onClose, onImport }: Props) {
   };
 
   const handleClose = () => {
+    const hasImportedSomething = importStats.created > 0 || importStats.updated > 0;
+    
     setImportLogs([]);
     setImportStats({ created: 0, updated: 0, skipped: 0, errors: 0 });
     setUploadStatus(null);
     onClose();
+    
+    // Refresh page if something was imported
+    if (hasImportedSomething) {
+      window.location.reload();
+    }
   };
 
   // Function to update logs and stats (will be called from ImportManager)
@@ -199,6 +207,15 @@ export default function ImportDialog({ isOpen, onClose, onImport }: Props) {
                 <div className="stat-item skipped">スキップ: {importStats.skipped}件</div>
                 <div className="stat-item errors">エラー: {importStats.errors}件</div>
               </div>
+              
+              {/* Complete button after successful import */}
+              {!isUploading && uploadStatus?.success && (
+                <div className="import-complete">
+                  <button onClick={handleClose} className="complete-button">
+                    完了して閉じる
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
