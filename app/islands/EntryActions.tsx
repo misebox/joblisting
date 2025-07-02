@@ -1,4 +1,5 @@
 import { useState } from 'hono/jsx';
+import SelectBox from './SelectBox';
 
 interface Props {
   entryId: number;
@@ -52,16 +53,17 @@ export default function EntryActions({
       <form onSubmit={handleSubmit}>
         <div className="filter-group">
           <label htmlFor="status">ステータス</label>
-          <select 
-            name="status" 
-            id="status" 
-            value={status}
+          <SelectBox
+            name="status"
+            id="status"
+            defaultValue={status}
+            options={[
+              { value: 'new', label: '新規' },
+              { value: 'reviewed', label: '確認済み' },
+              { value: 'rejected', label: '却下' }
+            ]}
             onChange={(e) => setStatus((e.target as HTMLSelectElement).value)}
-          >
-            <option value="new">新規</option>
-            <option value="reviewed">確認済み</option>
-            <option value="rejected">却下</option>
-          </select>
+          />
         </div>
         
         <div className="filter-group">
