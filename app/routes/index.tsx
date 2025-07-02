@@ -3,6 +3,7 @@ import { db, entries, tags, entryTags } from '@/db';
 import { eq, desc, asc, or, ilike, and, inArray, count, sql } from 'drizzle-orm';
 import EntryList from '@/islands/EntryList';
 import AutoSubmitForm from '@/islands/AutoSubmitForm';
+import ImportManager from '@/islands/ImportManager';
 
 export default createRoute(async (c) => {
   const { status, starred, search, sort = 'updatedAt', order = 'desc', tags: selectedTags } = c.req.query();
@@ -30,10 +31,10 @@ export default createRoute(async (c) => {
   }
 
   // タグフィルタリング
-  const tagNames = selectedTags ? selectedTags.split(',').filter(tag => tag.trim() !== '') : [];
+  const tagNames = selectedTags?.split(',').filter(tag => tag.trim() !== '') || [];
   if (tagNames.length > 0) {
     // 選択されたタグ名からタグIDを取得
-    const selectedTagRecords = await db
+    const selectedTagRecords = await db()
       .select()
       .from(tags)
       .where(inArray(tags.name, tagNames));
@@ -43,7 +44,7 @@ export default createRoute(async (c) => {
     if (selectedTagIds.length > 0) {
       // AND条件：すべてのタグを持つエントリのIDを取得
       // GROUP BYとHAVINGを使って効率的に実装
-      const entriesWithAllTags = await db
+      const entriesWithAllTags = await db()
         .select({ 
           entryId: entryTags.entryId,
           tagCount: count(entryTags.tagId).as('tag_count')
@@ -69,15 +70,17 @@ export default createRoute(async (c) => {
                     sort === 'createdAt' ? entries.createdAt :
                     sort === 'title' ? entries.title :
                     sort === 'company' ? entries.company :
+                    sort === 'starred' ? entries.starred :
                     sort === 'price' ? entries.price :
                     sort === 'location' ? entries.location :
                     sort === 'period' ? entries.period :
                     sort === 'description' ? entries.description :
+                    sort === 'comment' ? entries.comment :
                     sort === 'status' ? entries.status :
                     entries.updatedAt;
   
   // Execute query
-  const allEntries = await db
+  const allEntries = await db()
     .select()
     .from(entries)
     .where(conditions.length > 0 ? (conditions.length === 1 ? conditions[0] : and(...conditions)) : undefined)
@@ -86,7 +89,7 @@ export default createRoute(async (c) => {
   // Get tags for each entry
   const entriesWithTags = await Promise.all(
     allEntries.map(async (entry) => {
-      const entryTagsList = await db
+      const entryTagsList = await db()
         .select({ tag: tags })
         .from(entryTags)
         .leftJoin(tags, eq(entryTags.tagId, tags.id))
@@ -100,14 +103,17 @@ export default createRoute(async (c) => {
   );
 
   // 利用可能なタグ一覧を取得
-  const availableTags = await db
+  const availableTags = await db()
     .select()
     .from(tags)
     .orderBy(tags.category, tags.name);
 
   return c.render(
     <>
-      <h1>案件一覧</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h1>案件一覧</h1>
+        <ImportManager />
+      </div>
 
       <AutoSubmitForm 
         key={`${status}-${starred}-${search}-${sort}-${order}-${selectedTags}`}
@@ -116,7 +122,7 @@ export default createRoute(async (c) => {
         search={search || ''} 
         sort={sort || 'updatedAt'}
         order={order || 'desc'}
-        selectedTags={selectedTags}
+        selectedTags={tagNames}
         availableTags={availableTags}
       />
       

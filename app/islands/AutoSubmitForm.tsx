@@ -13,7 +13,7 @@ interface Props {
   search?: string;
   sort?: string;
   order?: string;
-  selectedTags?: string | string[];
+  selectedTags?: string[];
   availableTags?: Tag[];
 }
 
@@ -46,14 +46,14 @@ const orderOptions = [
   { value: 'asc', label: '昇順' }
 ];
 
-export default function AutoSubmitForm({ status = 'all', starred = '', search = '', sort = 'updatedAt', order = 'desc', selectedTags, availableTags = [] }: Props) {
+export default function AutoSubmitForm({ status = 'all', starred = '', search = '', sort = 'updatedAt', order = 'desc', selectedTags = [], availableTags = [] }: Props) {
   const [currentConditions, setCurrentConditions] = useState({
     status,
     starred,
     search,
     sort,
     order,
-    tags: selectedTags ? selectedTags.split(',').filter(tag => tag.trim() !== '') : [],
+    tags: selectedTags,
   });
 
   // 共通のフォームからの条件抽出関数
@@ -78,7 +78,7 @@ export default function AutoSubmitForm({ status = 'all', starred = '', search = 
 
   // Load from localStorage on mount, but prefer URL params if they exist
   useEffect(() => {
-    const currentTags = selectedTags ? selectedTags.split(',').filter(tag => tag.trim() !== '') : [];
+    const currentTags = selectedTags;
     const hasUrlParams = status !== 'all' || starred !== '' || search !== '' || sort !== 'updatedAt' || order !== 'desc' || currentTags.length > 0;
     if (!hasUrlParams) {
       const stored = loadSearchConditions();

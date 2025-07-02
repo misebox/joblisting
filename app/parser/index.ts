@@ -33,19 +33,31 @@ export class JobListingParser {
 
   private parseBlock(block: string, blockIndex: number): ParsedEntry | ParseError {
     try {
-      // Extract title - handle both full-width and half-width numbers
-      const titleMatch = block.match(/案件[０-９0-9]+：(.+?)(?=\n|$)/);
-      if (!titleMatch) {
+      // Extract title - first line of the block
+      const lines = block.split('\n');
+      
+      // Find the first non-empty line as title
+      let titleLine = '';
+      let titleFound = false;
+      for (const line of lines) {
+        if (line.trim()) {
+          titleLine = line.trim();
+          titleFound = true;
+          break;
+        }
+      }
+      
+      if (!titleFound) {
         return {
           type: 'MissingTitleError',
           blockIndex,
-          detail: 'No title found in block',
+          detail: 'No title found in block (all lines are empty)',
           rawSnippet: block.slice(0, 300),
         };
       }
 
       const entry: ParsedEntry = {
-        title: titleMatch[1].trim(),
+        title: titleLine,
         company: this.parseSimpleField(block, '会社'),
         distribution: this.parseSimpleField(block, '商流'),
         price: this.parseSimpleField(block, '単価'),
@@ -85,11 +97,16 @@ export class JobListingParser {
   }
 
   parse(content: string): ParseResult {
-    const blocks = content.split(BLOCK_SEPARATOR).filter(block => block.trim());
+    const blocks = content.split(BLOCK_SEPARATOR);
     const entries: ParsedEntry[] = [];
     const errors: ParseError[] = [];
 
     blocks.forEach((block, index) => {
+      // Skip completely empty blocks (common at start/end)
+      if (!block.trim()) {
+        return;
+      }
+      
       const result = this.parseBlock(block, index + 1);
       if ('type' in result) {
         errors.push(result);
