@@ -52,7 +52,7 @@ export const POST = createRoute(async (c) => {
         const entryHash = generateEntryHashSync(entry);
         
         // Check if entry with same title and hash already exists
-        const existingEntry = await db
+        const existingEntry = await db()
           .select({ id: entries.id, title: entries.title })
           .from(entries)
           .where(and(
@@ -63,7 +63,7 @@ export const POST = createRoute(async (c) => {
 
         if (existingEntry.length > 0) {
           // Check if content has actually changed by comparing hashes
-          const [currentEntry] = await db
+          const [currentEntry] = await db()
             .select({ hash: entries.hash })
             .from(entries)
             .where(eq(entries.id, existingEntry[0].id))
@@ -79,7 +79,7 @@ export const POST = createRoute(async (c) => {
             });
           } else {
             // Content changed, update entry
-            await db
+            await db()
               .update(entries)
               .set({
                 ...entry,
@@ -109,7 +109,7 @@ export const POST = createRoute(async (c) => {
           const tags = await tagger.extractTags(entryText);
           
           // Insert new entry into database
-          const [inserted] = await db.insert(entries).values({
+          const [inserted] = await db().insert(entries).values({
             ...entry,
             hash: entryHash,
             status: 'new',
@@ -122,7 +122,7 @@ export const POST = createRoute(async (c) => {
           if (tags.length > 0) {
             // tags
             const { tags: tagTable } = await import('@/db');
-            const existingTags = await db
+            const existingTags = await db()
                 .select({ id: tagTable.id, name: tagTable.name })
                 .from(tagTable);
             const exTagSet = new Set(existingTags.map(tag => tag.name));
@@ -130,7 +130,7 @@ export const POST = createRoute(async (c) => {
             // Insert new tags if they don't exist
             let insertedTags = [];
             if (newTags.length > 0) {
-              insertedTags = await db.insert(tagTable).values(newTags.map(tag => ({
+              insertedTags = await db().insert(tagTable).values(newTags.map(tag => ({
                 name: tag.name,
                 category: tag.category,
               }))).returning({ id: tagTable.id, name: tagTable.name });
@@ -140,7 +140,7 @@ export const POST = createRoute(async (c) => {
             const tagMap = new Map(existingTags.map(tag => [tag.name, tag.id]));
             // entryTags
             const { entryTags } = await import('@/db');
-            await db.insert(entryTags).values(
+            await db().insert(entryTags).values(
               tags.map(tag => ({
                 entryId: inserted.id,
                 tagId: tagMap.get(tag.name)

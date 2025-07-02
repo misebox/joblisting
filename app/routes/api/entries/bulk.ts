@@ -2,6 +2,7 @@ import { createRoute } from 'honox/factory';
 import { db, entries } from '@/db';
 import { inArray, eq } from 'drizzle-orm';
 import { z } from 'zod';
+import { handleApiError } from '@/utils/errorHandler';
 
 const BulkOperationSchema = z.object({
   operation: z.enum(['delete', 'star', 'unstar']),
@@ -17,20 +18,20 @@ export const POST = createRoute(async (c) => {
     
     switch (operation) {
       case 'delete':
-        await db
+        await db()
           .delete(entries)
           .where(inArray(entries.id, ids));
         break;
         
       case 'star':
-        await db
+        await db()
           .update(entries)
           .set({ starred: true, updatedAt: new Date() })
           .where(inArray(entries.id, ids));
         break;
         
       case 'unstar':
-        await db
+        await db()
           .update(entries)
           .set({ starred: false, updatedAt: new Date() })
           .where(inArray(entries.id, ids));
@@ -46,19 +47,6 @@ export const POST = createRoute(async (c) => {
       }しました` 
     });
   } catch (error) {
-    console.error('Bulk operation error:', error);
-    
-    if (error instanceof z.ZodError) {
-      return c.json({ 
-        success: false, 
-        error: 'Invalid request data',
-        details: error.errors 
-      }, 400);
-    }
-    
-    return c.json({ 
-      success: false, 
-      error: 'Internal server error' 
-    }, 500);
+    return handleApiError(error, c);
   }
 });

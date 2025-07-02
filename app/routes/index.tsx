@@ -34,7 +34,7 @@ export default createRoute(async (c) => {
   const tagNames = selectedTags?.split(',').filter(tag => tag.trim() !== '') || [];
   if (tagNames.length > 0) {
     // 選択されたタグ名からタグIDを取得
-    const selectedTagRecords = await db
+    const selectedTagRecords = await db()
       .select()
       .from(tags)
       .where(inArray(tags.name, tagNames));
@@ -44,7 +44,7 @@ export default createRoute(async (c) => {
     if (selectedTagIds.length > 0) {
       // AND条件：すべてのタグを持つエントリのIDを取得
       // GROUP BYとHAVINGを使って効率的に実装
-      const entriesWithAllTags = await db
+      const entriesWithAllTags = await db()
         .select({ 
           entryId: entryTags.entryId,
           tagCount: count(entryTags.tagId).as('tag_count')
@@ -70,15 +70,17 @@ export default createRoute(async (c) => {
                     sort === 'createdAt' ? entries.createdAt :
                     sort === 'title' ? entries.title :
                     sort === 'company' ? entries.company :
+                    sort === 'starred' ? entries.starred :
                     sort === 'price' ? entries.price :
                     sort === 'location' ? entries.location :
                     sort === 'period' ? entries.period :
                     sort === 'description' ? entries.description :
+                    sort === 'comment' ? entries.comment :
                     sort === 'status' ? entries.status :
                     entries.updatedAt;
   
   // Execute query
-  const allEntries = await db
+  const allEntries = await db()
     .select()
     .from(entries)
     .where(conditions.length > 0 ? (conditions.length === 1 ? conditions[0] : and(...conditions)) : undefined)
@@ -87,7 +89,7 @@ export default createRoute(async (c) => {
   // Get tags for each entry
   const entriesWithTags = await Promise.all(
     allEntries.map(async (entry) => {
-      const entryTagsList = await db
+      const entryTagsList = await db()
         .select({ tag: tags })
         .from(entryTags)
         .leftJoin(tags, eq(entryTags.tagId, tags.id))
@@ -101,7 +103,7 @@ export default createRoute(async (c) => {
   );
 
   // 利用可能なタグ一覧を取得
-  const availableTags = await db
+  const availableTags = await db()
     .select()
     .from(tags)
     .orderBy(tags.category, tags.name);

@@ -7,7 +7,7 @@ import EntryActions from '@/islands/EntryActions';
 export default createRoute(async (c) => {
   const id = parseInt(c.req.param('id'));
   
-  const [entry] = await db
+  const [entry] = await db()
     .select()
     .from(entries)
     .where(eq(entries.id, id))
