@@ -598,6 +598,15 @@ input[type="checkbox"] {
 .checkbox-column input[type="checkbox"] {
   cursor: pointer;
 }
+.star-cell {
+  text-align: center;
+  font-size: 16px;
+}
+.comment-cell {
+  font-style: italic;
+  color: #6c757d;
+  font-size: 11px;
+}
 @media (max-width: 768px) {
   .filters form {
     flex-direction: column;

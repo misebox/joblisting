@@ -16,6 +16,105 @@ interface Props {
   currentOrder?: string;
 }
 
+// Column configuration - add/remove keys here to show/hide columns
+const VISIBLE_COLUMNS = [
+  'title',
+  'company',
+  'starred',
+  'price',
+  'location',
+  'period',
+  // 'description', // 概要を除外
+  'comment',
+  'tags',
+  'status',
+  'updatedAt'
+] as const;
+
+type ColumnKey = typeof VISIBLE_COLUMNS[number] | 'description';
+
+const COLUMN_CONFIG: Record<ColumnKey, {
+  label: string;
+  sortable: boolean;
+  render: (entry: EntryWithTags, truncateText: (text: string | null, maxLength: number) => string) => any;
+}> = {
+  title: {
+    label: '案件',
+    sortable: true,
+    render: (entry) => (
+      <div className="title-cell">
+        <a href={`/entry/${entry.id}`} className="title-link">
+          {entry.title ? entry.title.substring(0, 40) + (entry.title.length > 40 ? '...' : '') : '-'}
+        </a>
+      </div>
+    )
+  },
+  company: {
+    label: '会社',
+    sortable: true,
+    render: (entry, truncate) => (
+      <span title={entry.company || undefined}>{truncate(entry.company, 20)}</span>
+    )
+  },
+  starred: {
+    label: 'スター',
+    sortable: true,
+    render: (entry) => (
+      <span className="star-cell">{entry.starred ? '⭐' : ''}</span>
+    )
+  },
+  price: {
+    label: '単価',
+    sortable: true,
+    render: (entry, truncate) => (
+      <span title={entry.price || undefined}>{truncate(entry.price, 15)}</span>
+    )
+  },
+  location: {
+    label: '場所',
+    sortable: true,
+    render: (entry, truncate) => (
+      <span title={entry.location || undefined}>{truncate(entry.location, 20)}</span>
+    )
+  },
+  period: {
+    label: '期間',
+    sortable: true,
+    render: (entry, truncate) => (
+      <span title={entry.period || undefined}>{truncate(entry.period, 15)}</span>
+    )
+  },
+  description: {
+    label: '概要',
+    sortable: true,
+    render: (entry, truncate) => (
+      <span title={entry.description || undefined}>{truncate(entry.description, 90)}</span>
+    )
+  },
+  comment: {
+    label: 'コメント',
+    sortable: true,
+    render: (entry, truncate) => (
+      <span title={entry.comment || undefined} className="comment-cell">{truncate(entry.comment, 50)}</span>
+    )
+  },
+  tags: {
+    label: 'タグ',
+    sortable: false,
+    render: (entry) => <TagList tags={entry.tags} />
+  },
+  status: {
+    label: '状態',
+    sortable: true,
+    render: (entry) => <StatusBadge status={entry.status} />
+  },
+  updatedAt: {
+    label: '更新',
+    sortable: true,
+    render: (entry) => formatDate(entry.updatedAt)
+  }
+};
+
 export default function EntryList({ entries, currentSort = 'updatedAt', currentOrder = 'desc' }: Props) {
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [isOperating, setIsOperating] = useState(false);
@@ -125,15 +224,21 @@ export default function EntryList({ entries, currentSort = 'updatedAt', currentO
                   onChange={(e) => handleSelectAll((e.target as HTMLInputElement).checked)}
                 />
               </th>
-              <SortableHeader column="title" label="案件" currentSort={currentSort} currentOrder={currentOrder} onSort={handleSort} />
-              <SortableHeader column="company" label="会社" currentSort={currentSort} currentOrder={currentOrder} onSort={handleSort} />
-              <SortableHeader column="price" label="単価" currentSort={currentSort} currentOrder={currentOrder} onSort={handleSort} />
-              <SortableHeader column="location" label="場所" currentSort={currentSort} currentOrder={currentOrder} onSort={handleSort} />
-              <SortableHeader column="period" label="期間" currentSort={currentSort} currentOrder={currentOrder} onSort={handleSort} />
-              <SortableHeader column="description" label="概要" currentSort={currentSort} currentOrder={currentOrder} onSort={handleSort} />
-              <th>タグ</th>
-              <SortableHeader column="status" label="状態" currentSort={currentSort} currentOrder={currentOrder} onSort={handleSort} />
-              <SortableHeader column="updatedAt" label="更新" currentSort={currentSort} currentOrder={currentOrder} onSort={handleSort} />
+              {VISIBLE_COLUMNS.map(columnKey => {
+                const config = COLUMN_CONFIG[columnKey];
+                return config.sortable ? (
+                  <SortableHeader 
+                    key={columnKey}
+                    column={columnKey} 
+                    label={config.label} 
+                    currentSort={currentSort} 
+                    currentOrder={currentOrder} 
+                    onSort={handleSort} 
+                  />
+                ) : (
+                  <th key={columnKey}>{config.label}</th>
+                );
+              })}
             </tr>
           </thead>
           <tbody>
@@ -146,38 +251,16 @@ export default function EntryList({ entries, currentSort = 'updatedAt', currentO
                     onChange={(e) => handleSelectOne(entry.id, (e.target as HTMLInputElement).checked)}
                   />
                 </td>
-                <td>
-                <div className="title-cell">
-                  <a href={`/entry/${entry.id}`} className="title-link">
-                    {truncateText(entry.title, 40)}
-                  </a>
-                  {entry.starred && <span className="starred">★</span>}
-                </div>
-              </td>
-              <td title={entry.company || undefined}>
-                {truncateText(entry.company, 20)}
-              </td>
-              <td title={entry.price || undefined}>
-                {truncateText(entry.price, 15)}
-              </td>
-              <td title={entry.location || undefined}>
-                {truncateText(entry.location, 20)}
-              </td>
-              <td title={entry.period || undefined}>
-                {truncateText(entry.period, 15)}
-              </td>
-              <td title={entry.description || undefined}>
-                {truncateText(entry.description, 90)}
-              </td>
-              <td>
-                <TagList tags={entry.tags} />
-              </td>
-              <td>
-                <StatusBadge status={entry.status} />
-              </td>
-              <td>{formatDate(entry.updatedAt)}</td>
-            </tr>
-          ))}
+                {VISIBLE_COLUMNS.map(columnKey => {
+                  const config = COLUMN_CONFIG[columnKey];
+                  return (
+                    <td key={columnKey}>
+                      {config.render(entry, truncateText)}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
         </tbody>
       </table>
     </div>
