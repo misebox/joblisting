@@ -532,6 +532,72 @@ input[type="checkbox"] {
 .complete-button:hover {
   background: #218838;
 }
+/* Bulk operations */
+.table-wrapper {
+  position: relative;
+}
+.bulk-toolbar {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.selected-count {
+  font-weight: 600;
+  color: #495057;
+}
+.bulk-actions {
+  display: flex;
+  gap: 8px;
+}
+.bulk-button {
+  padding: 6px 12px;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+.bulk-button:hover {
+  background: #f8f9fa;
+}
+.bulk-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.bulk-button.star {
+  border-color: #ffc107;
+  color: #856404;
+}
+.bulk-button.star:hover {
+  background: #fff3cd;
+}
+.bulk-button.unstar {
+  border-color: #6c757d;
+  color: #495057;
+}
+.bulk-button.unstar:hover {
+  background: #e9ecef;
+}
+.bulk-button.delete {
+  border-color: #dc3545;
+  color: #721c24;
+}
+.bulk-button.delete:hover {
+  background: #f8d7da;
+}
+.checkbox-column {
+  width: 40px;
+  text-align: center;
+}
+.checkbox-column input[type="checkbox"] {
+  cursor: pointer;
+}
 @media (max-width: 768px) {
   .filters form {
     flex-direction: column;
@@ -556,5 +622,18 @@ input[type="checkbox"] {
   .drop-zone {
     padding: 20px;
     min-height: 150px;
+  }
+  .bulk-toolbar {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .bulk-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  .bulk-button {
+    flex: 1;
+    min-width: 100px;
   }
 }
